@@ -1,0 +1,33 @@
+{
+    "name": "Uact Place",
+    "tree": {
+        "$className": "DataModel",
+        "ReplicatedStorage": {
+            "$className": "ReplicatedStorage",
+            "$path": "Service/Shared",
+            "$ignoreUnknownInstances": true,
+
+            "Uact": {
+                "$path": "src"
+            }
+        },
+
+        "ServerScriptService": {
+            "$className": "ServerScriptService",
+            "$ignoreUnknownInstances": true,
+            "$path": "Service/Server"
+        },
+
+        "StarterPlayer": {
+            "$className": "StarterPlayer",
+
+            "StarterPlayerScripts": {
+                "$ignoreUnknownInstances": true,
+                "$path": "Service/Client",
+                "$className": "StarterPlayerScripts"
+            }
+        },
+
+        "$ignoreUnknownInstances": true
+    }
+}
