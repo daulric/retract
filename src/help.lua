@@ -13,8 +13,8 @@ type propertyvalue = (element: any, ...any) -> () | any
 
 type AttributeProperty = boolean | BrickColor | Color3 | ColorSequence | NumberRange | NumberSequence | Rect
 type Properties = {
-    [any]: propertyvalue,
-    Attributes: {[any]: AttributeProperty}
+    [any]: propertyvalue?,
+    Attributes: {[any]: AttributeProperty?}?
 }
 
 type Component = {
