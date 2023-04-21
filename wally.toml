@@ -1,6 +1,6 @@
 [package]
 name = "daulric/uact"
-version = "0.0.6"
+version = "0.0.7"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 

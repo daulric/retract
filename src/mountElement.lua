@@ -59,12 +59,12 @@ function Mounted.mount(tree, parent: Instance)
         if parent then
             if ifTree(parent) then
                 element.Object.Parent = parent.Object
+                table.insert(parent.Component, tree)
             else
                 element.Object.Parent = parent
             end
         end
         
-        table.insert(parent.Component, tree)
         return tree
     end
 end
