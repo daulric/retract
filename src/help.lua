@@ -27,14 +27,14 @@ type ComponentFunc = {
 }
 
 export type Element = {
-    createElement: (class: string, properties: Properties, components: Table?) -> (),
+    createElement: (class: string, properties: Properties?, components: Table?) -> (),
     mount: (tree: Elements, parent: Instance?) -> (),
     unmount: (tree: Elements) -> {[number]: Elements},
     update: (tree: Elements, newTree: Elements) -> {[number]: Elements},
 
     GetElements: () -> (),
     Component: {
-        extend: () -> ComponentFunc
+        extend: (self: any) -> ComponentFunc
     },
     Change: {[any]: any},
     Event: {[any]: any}
