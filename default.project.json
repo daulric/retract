@@ -1,6 +1,6 @@
 {
-    "name": "Uact",
-    "tree": {
-        "$path": "src"
-    }
+  "name": "uact",
+  "tree": {
+    "$path": "src"
+  }
 }
