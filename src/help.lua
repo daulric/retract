@@ -10,12 +10,7 @@ type Elements = {
 type Table = {[any]: any}
 
 type propertyvalue = (element: any, ...any) -> () | any
-
-type AttributeProperty = boolean | BrickColor | Color3 | ColorSequence | NumberRange | NumberSequence | Rect
-type Properties = {
-    [any]: propertyvalue?,
-    Attributes: {[any]: AttributeProperty?}?
-}
+type Properties = {[string]: propertyvalue}
 
 type Component = {
     setState: (self: any, value: any) -> (),
@@ -27,15 +22,18 @@ type ComponentFunc = {
 }
 
 export type Element = {
-    createElement: (class: string, properties: Properties?, components: Table?) -> (),
-    mount: (tree: Elements, parent: Instance?) -> (),
-    unmount: (tree: Elements) -> {[number]: Elements},
-    update: (tree: Elements, newTree: Elements) -> {[number]: Elements},
+    createElement: (class: string, properties: Properties?, components: Table?) -> Elements,
+    createFragment: (tree: Table) -> {[any]: any},
+    mount: (tree: Elements, parent: Instance?) -> Elements,
+    unmount: (tree: Elements) -> Elements,
+    unmountChildren: (tree: Elements) -> (),
+    update: (tree: Elements, newTree: Elements) -> Elements,
 
     GetElements: () -> (),
     Component: {
         extend: (self: any) -> ComponentFunc
     },
+    
     Change: {[any]: any},
     Event: {[any]: any}
 }

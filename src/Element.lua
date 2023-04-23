@@ -3,18 +3,15 @@ function SetProperty(element, propertyName, property)
         local Property = string.split(propertyName, " ")
         local PropertyValue = Property[2]
 
+
         if element[PropertyValue] then
 
             element:GetPropertyChangedSignal(PropertyValue):Connect(function(...)
                 property(element, ...)
             end)
-            
-        elseif element:GetAttribute(PropertyValue) then
-            element:GetAttributeChangedSignal(PropertyValue):Connect(function(...)
-                property(element, ...)
-            end)
-
+        
         end
+
 
     elseif typeof(element[propertyName]) == "RBXScriptSignal" and type(property) == "function" then
 
@@ -24,6 +21,15 @@ function SetProperty(element, propertyName, property)
 
     else
         element[propertyName] = property
+    end
+end
+
+function setFragment(component, element)
+    for index, value in pairs(component) do
+        if index ~= "IsFragment" then
+            local Created = createElement(value.Class, value.Properties, value.Component)
+            Created.Object.Parent = element
+        end
     end
 end
 
@@ -43,22 +49,15 @@ function createElement(class, properties, components)
     
     if properties then
         local success, err = pcall(function()
-            if properties.Attributes then
-                for index, attribute in pairs(properties.Attributes) do
-                    element:SetAttribute(index, attribute)
-                end
-            end
-
             for propertyName, property in pairs(properties) do
-                if propertyName ~= "Attributes" then
-                    SetProperty(element, propertyName, property)  
-                end
+                SetProperty(element, propertyName, property)
             end
        end)
 
        if not success then
             warn(err)
        end
+       
     end
     
 
@@ -66,8 +65,12 @@ function createElement(class, properties, components)
         local success, err = pcall(function()
             for _, component in pairs(components) do
                 if component then
-                    local Created = createElement(component.Class, component.Properties, component.Component)
-                    Created.Object.Parent = element
+                    if component.IsFragment then
+                        setFragment(component, element)
+                    else
+                        local Created = createElement(component.Class, component.Properties, component.Component)
+                        Created.Object.Parent = element
+                    end
                 end
             end
         end)
@@ -85,4 +88,25 @@ function createElement(class, properties, components)
     }
 end
 
-return createElement
+function createFragment(component)
+    local elements = {}
+    elements.IsFragment = true
+
+    local success, err = pcall(function()
+        for index, components in pairs(component) do
+            if components then
+                local Created = createElement(components.Class, components.Properties, components.Component)
+                elements[index] = Created
+            end
+        end
+    end)
+
+    if success then
+        return elements
+    end
+end
+
+return {
+    createFragment = createFragment,
+    createElement = createElement,
+}

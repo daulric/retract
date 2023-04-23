@@ -1,51 +1,50 @@
 local Component = {}
+Component.__index = Component
+Component.state = {}
+table.freeze(Component.state)
 
-function Register(class: {[any]: any}, name)
-	class.name = name
+function Component:setState(value: any)
 
-	class.state = {}
-	class.state.isState = true
-	table.freeze(class.state)
+	if not table.isfrozen(Component.state) and Component.state.isState ~= true then
+		warn("this table was not properly set!")
+		return
+	end
 
-	function class:setState(value: any)
-		if not table.isfrozen(class.state) and class.state.isState ~= true then
-			warn("this table was not properly set!")
-			return
+	local NewClassState = table.clone(Component.state)
+
+	if type(value) == "table" then
+		for index, stuff in pairs(value) do
+			NewClassState[tostring(index)] = stuff
 		end
+	elseif type(value) == "function" then
+		local newState = value(NewClassState)
 
-		local NewClassState = table.clone(class.state)
-
-		if type(value) == "table" then
-			for index, stuff in pairs(value) do
+		if type(newState) == "table" then 
+			for index, stuff in pairs(newState) do
 				NewClassState[tostring(index)] = stuff
 			end
-		elseif type(value) == "function" then
-			local newState = value(NewClassState)
-
-			if type(newState) == "table" then 
-				for index, stuff in pairs(newState) do
-					NewClassState[tostring(index)] = stuff
-				end
-			else
-				table.insert(NewClassState, value)
-			end
+		else
+			table.insert(NewClassState, value)
 		end
-
-		NewClassState.isState = true
-		class.state = NewClassState
-		table.freeze(class.state)
 	end
 
-	if name ~= nil then
-		class.name = ""..name
-	end
-	
+	NewClassState.isState = true
+	Component.state = NewClassState
+	table.freeze(Component.state)
 end
 
 function Component:extend(name)
 	-- this here runs the component once
 	local class = {}
-	Register(class, name)
+
+	if name ~= nil then
+		class.name = ""..name
+	end
+
+	class.name = name
+
+	setmetatable(class, Component)
+
 	class.isExtended = true
 
 	return class

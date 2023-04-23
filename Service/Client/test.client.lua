@@ -2,9 +2,28 @@ local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Uact = require(game.ReplicatedStorage:WaitForChild("Uact"))
 
+local testComp = require(game.ReplicatedStorage.test)
+
 local Element = Uact.createElement("ScreenGui", {
     Name = "Ulric",
 	IgnoreGuiInset = true
+})
+
+local Hello = Uact.createFragment({
+    Hello = Uact.createElement("TextButton", {
+        Name = "Ulric",
+        Size = UDim2.fromOffset(200,100),
+        [Uact.Event.MouseButton1Click] = function(element)
+            element.Text = "Ulric is the Best!"
+        end,
+        [Uact.Change.Text] = function(element)
+            print("text changed:", element.Text)
+        end
+    }),
+
+    Idk = Uact.createElement("TextButton", {
+        Name = "IDK"
+    })
 })
 
 local function changeColor (color: Color3)
@@ -38,14 +57,35 @@ local function changeColor (color: Color3)
     })
 end
 
-Uact.mount(Element, Players.LocalPlayer.PlayerGui)
-task.wait(1)
-local handler = Uact.mount(changeColor(Color3.fromRGB(213, 15, 15)), Element)
+local function test()
+    return Uact.createElement("TextButton", {
+        Name = "Hello",
+        Size = UDim2.fromScale(1, 1),
+        TextScaled = true,
+        Text = "Hello",
+        Font = Enum.Font.Code,
+        [Uact.Event.MouseButton1Click] = function(element)
+            element.Text = "Ulric is the Best!"
+            task.wait()
+            element.Text = "Hello"
+        end,
+        [Uact.Change.Text] = function(element)
+            print("text changed:", element.Text)
+            element:SetAttribute("Hi", element.Text)
+        end,
+    })
+end
 
+Uact.mount(Element, Players.LocalPlayer.PlayerGui)
+Uact.mount(test(), Element)
+--Uact.mount(testComp, Element)
+--Uact.mount(Hello, Element)
+
+--local handler = Uact.mount(changeColor(Color3.fromRGB(213, 15, 15)), Element)
 
 ReplicatedStorage.TestBool:GetPropertyChangedSignal("Value"):Connect(function()
     local r = math.random(1, 255)
     local g = math.random(1, 255)
     local b = math.random(1, 255)
-    handler = Uact.update(handler, changeColor(Color3.fromRGB(r, g, b)))
+   -- handler = Uact.update(handler, changeColor(Color3.fromRGB(r, g, b)))
 end)

@@ -38,34 +38,39 @@ function ifTree(class)
     return success
 end
 
-function Mounted.mount(tree, parent: Instance)
-
-    if tree.Object then
-        if parent then
-            if ifTree(parent) then
-                tree.Object.Parent = parent.Object
-            else
-                tree.Object.Parent = parent
-            end
+function normalMount(tree, parent)
+    if parent then
+        if ifTree(parent) then
+            tree.Object.Parent = parent.Object
+        else
+            tree.Object.Parent = parent
         end
-
-        table.insert(Elements, tree)
-        return tree
     end
+end
 
-    if tree.isExtended then
-		local stuff, element = Extended(tree)
-		
-        if parent then
-            if ifTree(parent) then
-                element.Object.Parent = parent.Object
-                table.insert(parent.Component, tree)
-            else
-                element.Object.Parent = parent
+function setFragment(tree, parent)
+    for index, value in pairs(tree) do
+        if index ~= "IsFragment" then
+            if parent then
+                if ifTree(parent) then
+                    value.Object.Parent = parent.Object
+                    table.insert(parent.Component, value)
+                else
+                    value.Object.Parent = parent
+                end
             end
         end
-        
-        return tree
+    end
+end
+
+function isExtendTree(tree, element, parent)
+    if parent then
+        if ifTree(parent) then
+            element.Object.Parent = parent.Object
+            table.insert(parent.Component, tree)
+        else
+            element.Object.Parent = parent
+        end
     end
 end
 
@@ -87,6 +92,26 @@ function unmount(elements, tree)
 
 end
 
+function Mounted.mount(tree, parent: Instance)
+
+    if tree.Object then
+        normalMount(tree, parent)
+        table.insert(Elements, tree)
+        return tree
+    end
+
+    if tree.isExtended then
+		local stuff, element = Extended(tree)
+        isExtendTree(tree, element, parent)
+        return tree
+    end
+
+    if tree.IsFragment then
+        setFragment(tree, parent)
+        return tree
+    end
+end
+
 function Mounted.unmount(tree)
     unmount(Elements, tree)
 end
@@ -106,6 +131,21 @@ function Mounted.update(tree, newTree)
     end
     
     return newTree
+end
+
+function Mounted.unmountChildren(tree)
+    print(tree)
+    if tree.Component then
+        for index, trees in pairs(tree.Component) do
+            if trees.Object then
+                if trees.Object.Parent then
+                    trees.Object:Destroy()
+                end
+            end
+
+            tree.Component[index] = nil
+        end
+    end
 end
 
 function Mounted.GetElements()
