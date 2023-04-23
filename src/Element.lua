@@ -63,7 +63,6 @@ function ClassElement(class, properties, components)
     end
 
     if components then
-
         for index, component in pairs(components) do
             if component then
                 if component.IsFragment then
@@ -96,7 +95,8 @@ function createElement(class, properties, components)
         Elements = ClassElement(class, properties, components)
     elseif type(class) == "function" then
         local func = class(properties)
-        Elements = ClassElement(func.Class, func.Properties, components)
+        Elements = ClassElement(func.Class, func.Properties, func.Component)
+        table.insert(components, Elements.Component)
     end
 
     return Elements

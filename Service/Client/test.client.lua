@@ -82,6 +82,9 @@ local test = Uact.createElement(testComp, {
 
 Uact.mount(Element, Players.LocalPlayer.PlayerGui)
 Uact.mount(test, Element)
+wait(1)
+print(Element)
+task.wait(10)
 
 
 --local handler = Uact.mount(changeColor(Color3.fromRGB(213, 15, 15)), Element)

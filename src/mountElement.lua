@@ -42,6 +42,7 @@ function normalMount(tree, parent)
     if parent then
         if ifTree(parent) then
             tree.Object.Parent = parent.Object
+            table.insert(parent.Component, tree)
         else
             tree.Object.Parent = parent
         end

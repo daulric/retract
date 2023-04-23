@@ -20,5 +20,9 @@ return function(props)
             print("text changed:", element.Text)
             element:SetAttribute("Hi", element.Text)
         end,
+    }, {
+        Uact.createElement("TextLabel", {
+            Text = "hello"
+        })
     })
 end
