@@ -5,7 +5,7 @@ local Uact = require(game.ReplicatedStorage:WaitForChild("Uact"))
 local testComp = require(game.ReplicatedStorage.test)
 
 local Element = Uact.createElement("ScreenGui", {
-    Name = "Ulric",
+    Name = "Test",
 	IgnoreGuiInset = true
 })
 
@@ -57,7 +57,7 @@ local function changeColor (color: Color3)
     })
 end
 
-local function test()
+local function Ftest()
     return Uact.createElement("TextButton", {
         Name = "Hello",
         Size = UDim2.fromScale(1, 1),
@@ -76,10 +76,13 @@ local function test()
     })
 end
 
+local test = Uact.createElement(testComp, {
+    name = "ulric"
+})
+
 Uact.mount(Element, Players.LocalPlayer.PlayerGui)
-Uact.mount(test(), Element)
---Uact.mount(testComp, Element)
---Uact.mount(Hello, Element)
+Uact.mount(test, Element)
+
 
 --local handler = Uact.mount(changeColor(Color3.fromRGB(213, 15, 15)), Element)
 

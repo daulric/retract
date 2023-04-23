@@ -1,3 +1,10 @@
+type Stuff = {
+    Object: Instance,
+    Class: string,
+    Component: {[any]: any},
+    Properties: {[any]: any}
+}
+
 function SetProperty(element, propertyName, property)
     if propertyName:lower():find("changed") then
         local Property = string.split(propertyName, " ")
@@ -9,7 +16,7 @@ function SetProperty(element, propertyName, property)
             element:GetPropertyChangedSignal(PropertyValue):Connect(function(...)
                 property(element, ...)
             end)
-        
+            
         end
 
 
@@ -27,19 +34,18 @@ end
 function setFragment(component, element)
     for index, value in pairs(component) do
         if index ~= "IsFragment" then
-            local Created = createElement(value.Class, value.Properties, value.Component)
+            local Created = ClassElement(value.Class, value.Properties, value.Component)
             Created.Object.Parent = element
         end
     end
 end
 
-function createElement(class, properties, components)
-    components = components or {}
+function ClassElement(class, properties, components)
     properties = properties or {}
+    components = components or {}
 
     local success, element = pcall(function()
-        local instance = Instance.new(class)
-        return instance
+        return Instance.new(class)
     end)
 
     if not success then
@@ -49,43 +55,51 @@ function createElement(class, properties, components)
     
     if properties then
         local success, err = pcall(function()
-            for propertyName, property in pairs(properties) do
+           for propertyName, property in pairs(properties) do
                 SetProperty(element, propertyName, property)
-            end
-       end)
-
-       if not success then
-            warn(err)
-       end
-       
-    end
-    
-
-    if components then
-        local success, err = pcall(function()
-            for _, component in pairs(components) do
-                if component then
-                    if component.IsFragment then
-                        setFragment(component, element)
-                    else
-                        local Created = createElement(component.Class, component.Properties, component.Component)
-                        Created.Object.Parent = element
-                    end
-                end
             end
         end)
 
-        if not success then
-            warn(err)
+    end
+
+    if components then
+
+        for index, component in pairs(components) do
+            if component then
+                if component.IsFragment then
+                   setFragment(component, element)
+                else
+                    local Created = ClassElement(component.Class, component.Properties, component.Component)
+                    Created.Object.Parent = element
+                end
+            end
         end
     end
 
-    return {
+    local final: Stuff = {
         Object = element,
         Class = class,
-        Component = components,
         Properties = properties,
+        Component = components
     }
+
+    return final
+end
+
+function createElement(class, properties, components)
+    components = components or {}
+    properties = properties or {}
+
+    local Elements: Stuff = {}
+
+    if type(class) == "string" then
+        Elements = ClassElement(class, properties, components)
+    elseif type(class) == "function" then
+        local func = class(properties)
+        Elements = ClassElement(func.Class, func.Properties, components)
+    end
+
+    return Elements
 end
 
 function createFragment(component)

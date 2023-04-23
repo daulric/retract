@@ -7,6 +7,12 @@ type Elements = {
     Properties: {[any]: any}
 }
 
+type Event = {
+    Connect: (self: any, handle: (...any) -> ()) -> (),
+    Destroy: (self: any) -> (),
+    Fire: (self: any, ...any) -> ()
+}
+
 type Table = {[any]: any}
 
 type propertyvalue = (element: any, ...any) -> () | any
@@ -35,7 +41,9 @@ export type Element = {
     },
     
     Change: {[any]: any},
-    Event: {[any]: any}
+    Event: {[any]: any},
+
+    createEvent: () -> Event
 }
 
 return help

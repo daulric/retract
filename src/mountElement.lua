@@ -63,14 +63,48 @@ function setFragment(tree, parent)
     end
 end
 
-function isExtendTree(tree, element, parent)
+function isExtendTree(tree, element, parent, stuff)
     if parent then
         if ifTree(parent) then
             element.Object.Parent = parent.Object
+            stuff.props = parent.props
             table.insert(parent.Component, tree)
         else
             element.Object.Parent = parent
         end
+    end
+end
+
+function Mounted.mount(tree, parent)
+    if type(tree) == "table" then
+        if tree.Object then
+            normalMount(tree, parent)
+            table.insert(Elements, tree)
+            return tree
+        end
+
+        if tree.isExtended then
+		    local stuff, element = Extended(tree)
+            isExtendTree(tree, element, parent, stuff)
+            return tree
+        end
+
+        if tree.IsFragment then
+            setFragment(tree, parent)
+            return tree
+        end
+    end
+
+    if type(tree) == "function" then
+        local func
+
+        if ifTree(parent) then
+            func = tree(parent.props)
+        else
+            func = tree()
+        end
+
+        normalMount(func, parent)
     end
 end
 
@@ -90,26 +124,6 @@ function unmount(elements, tree)
         end
     end)
 
-end
-
-function Mounted.mount(tree, parent: Instance)
-
-    if tree.Object then
-        normalMount(tree, parent)
-        table.insert(Elements, tree)
-        return tree
-    end
-
-    if tree.isExtended then
-		local stuff, element = Extended(tree)
-        isExtendTree(tree, element, parent)
-        return tree
-    end
-
-    if tree.IsFragment then
-        setFragment(tree, parent)
-        return tree
-    end
 end
 
 function Mounted.unmount(tree)
