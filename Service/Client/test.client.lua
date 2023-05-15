@@ -10,20 +10,7 @@ local Element = Uact.createElement("ScreenGui", {
 })
 
 local Hello = Uact.createFragment({
-    Hello = Uact.createElement("TextButton", {
-        Name = "Ulric",
-        Size = UDim2.fromOffset(200,100),
-        [Uact.Event.MouseButton1Click] = function(element)
-            element.Text = "Ulric is the Best!"
-        end,
-        [Uact.Change.Text] = function(element)
-            print("text changed:", element.Text)
-        end
-    }),
-
-    Idk = Uact.createElement("TextButton", {
-        Name = "IDK"
-    })
+    
 })
 
 local function changeColor (color: Color3)
@@ -50,10 +37,28 @@ local function changeColor (color: Color3)
                 element.Parent = game.Workspace
             end
         end,
+    }, {
+        Uact.createFragment({
+            Uact.createElement(testComp, {
+                name = "uric"
+            }),
 
-        Attributes = {
-            Hello = "Idk"
-        }
+            Hello = Uact.createElement("TextButton", {
+                Name = "Ulric",
+                Size = UDim2.fromOffset(200,100),
+                [Uact.Event.MouseButton1Click] = function(element)
+                    element.Text = "Ulric is the Best!"
+                end,
+                [Uact.Change.Text] = function(element)
+                    print("text changed:", element.Text)
+                end
+            }),
+        
+            Idk = Uact.createElement("TextButton", {
+                Name = "IDK"
+            })
+
+        })
     })
 end
 
@@ -76,22 +81,19 @@ local function Ftest()
     })
 end
 
-local test = Uact.createElement(testComp, {
-    name = "ulric"
-})
-
 Uact.mount(Element, Players.LocalPlayer.PlayerGui)
-Uact.mount(test, Element)
-wait(1)
-print(Element)
-task.wait(10)
+handler = Uact.mount(changeColor(Color3.fromRGB(1, 1, 225)), Element)
 
-
---local handler = Uact.mount(changeColor(Color3.fromRGB(213, 15, 15)), Element)
+print(Uact.GetElements())
 
 ReplicatedStorage.TestBool:GetPropertyChangedSignal("Value"):Connect(function()
     local r = math.random(1, 255)
     local g = math.random(1, 255)
     local b = math.random(1, 255)
-   -- handler = Uact.update(handler, changeColor(Color3.fromRGB(r, g, b)))
+    task.wait(5)
+    --print(table.find(Element.Component, handler))
+	Uact.unmount(Element)
+    print("unmounted!")
+    task.wait(1)
+    Uact.mount(Element, Players.LocalPlayer.PlayerGui)
 end)

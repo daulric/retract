@@ -2,11 +2,11 @@ local Uact = require(game.ReplicatedStorage.Uact)
 
 local Comp = Uact.Component:extend()
 
-return function(props)
+return function (props)
     props.num = 1
     return Uact.createElement("TextButton", {
         Name = "2",
-        Size = UDim2.fromScale(1, 1),
+        Size = UDim2.fromOffset(200, 100),
         TextScaled = true,
         Text = "Hello",
         Font = Enum.Font.Code,
@@ -20,9 +20,5 @@ return function(props)
             print("text changed:", element.Text)
             element:SetAttribute("Hi", element.Text)
         end,
-    }, {
-        Uact.createElement("TextLabel", {
-            Text = "hello"
-        })
     })
 end

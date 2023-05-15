@@ -9,7 +9,7 @@ local signal = require(script:WaitForChild("Signal"))
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
-local Uact: Help.Element? = freeze({
+local Uact: Help.Element = freeze({
     createElement = element.createElement,
     createFragment = element.createFragment,
 

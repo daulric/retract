@@ -5,6 +5,8 @@ type Stuff = {
     Properties: {[any]: any}
 }
 
+local connections = {}
+
 function SetProperty(element, propertyName, property)
     if propertyName:lower():find("changed") then
         local Property = string.split(propertyName, " ")
@@ -13,18 +15,30 @@ function SetProperty(element, propertyName, property)
 
         if element[PropertyValue] then
 
-            element:GetPropertyChangedSignal(PropertyValue):Connect(function(...)
+            local connection = element:GetPropertyChangedSignal(PropertyValue):Connect(function(...)
                 property(element, ...)
             end)
+
+            if table.find(connections, property) then
+                connection:Disconnect()
+            else
+                table.insert(connections, property)
+            end
             
         end
 
 
     elseif typeof(element[propertyName]) == "RBXScriptSignal" and type(property) == "function" then
 
-        element[propertyName]:Connect(function(...)
+        local connection = element[propertyName]:Connect(function(...)
            property(element, ...)
         end)
+
+        if table.find(connections, property) then
+            connection:Disconnect()
+        else
+            table.insert(connections, property)
+        end
 
     else
         element[propertyName] = property
@@ -85,19 +99,55 @@ function ClassElement(class, properties, components)
     return final
 end
 
+function ExtendedElement(class, properties)
+    local success, data = pcall(function()
+        if class.isExtended then
+            return class
+        end
+    end)
+
+    if not success then
+        warn("this is not a component", class)
+        return
+    end
+
+    for index, property in pairs(properties) do
+        data.props[index] = property
+    end
+
+    local initSuccess, err = pcall(function()
+        if data.init then
+            task.spawn(function()
+                data.init()
+            end)
+        end
+    end)
+
+    if not initSuccess then
+        warn(err)
+    end
+
+    local renderSuccess, element = pcall(function()
+        if data.render then
+            return data:render()
+        end
+    end)
+
+    if renderSuccess then
+        return element
+    end
+
+end
+
 function createElement(class, properties, components)
     components = components or {}
     properties = properties or {}
 
-    local Elements: Stuff = {}
-
-    if type(class) == "string" then
-        Elements = ClassElement(class, properties, components)
-    elseif type(class) == "function" then
-        local func = class(properties)
-        Elements = ClassElement(func.Class, func.Properties, func.Component)
-        table.insert(components, Elements.Component)
-    end
+    local Elements: Stuff = {
+        Class = class,
+        Component = components,
+        Properties = properties
+    }
 
     return Elements
 end

@@ -1,6 +1,7 @@
 local Component = {}
 Component.__index = Component
 Component.state = {}
+Component.props = {}
 table.freeze(Component.state)
 
 function Component:setState(value: any)
@@ -45,7 +46,7 @@ function Component:extend(name)
 
 	setmetatable(class, Component)
 
-	class.isExtended = true
+	class.isExtended= true
 
 	return class
 end

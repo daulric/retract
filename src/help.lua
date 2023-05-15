@@ -20,11 +20,13 @@ type Properties = {[string]: propertyvalue}
 
 type Component = {
     setState: (self: any, value: any) -> (),
-    state: {[any]: any}
+    state: {[any]: any},
+    props: {[any]: any},
 }
 
 type ComponentFunc = {
-    render: (self: Component) -> Elements
+    init: (self: Component) -> Elements,
+    render: (self: Component) -> Elements,
 }
 
 export type Element = {
@@ -33,7 +35,6 @@ export type Element = {
     mount: (tree: Elements, parent: Instance?) -> Elements,
     unmount: (tree: Elements) -> Elements,
     unmountChildren: (tree: Elements) -> (),
-    update: (tree: Elements, newTree: Elements) -> Elements,
 
     GetElements: () -> (),
     Component: {
