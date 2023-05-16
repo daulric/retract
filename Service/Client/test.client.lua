@@ -5,6 +5,11 @@ local Uact = require(game.ReplicatedStorage:WaitForChild("Uact"))
 local value = Instance.new("StringValue")
 value.Value = "hello"
 
+local fragments = Uact.createFragment({
+    Uact.createElement("UICorner"),
+    Uact.createElement("RemoteFunction")
+})
+
 function getTime(props)
     return Uact.createElement("TextButton", {
         Name = "Button Click",
@@ -26,13 +31,8 @@ function getTime(props)
         Uact.createElement("RemoteEvent", {
             Name = "Event",
         }),
-
-        Uact.createFragment({
-            Uact.createElement("UICorner"),
-            Uact.createElement("RemoteFunction")
-        })
-
         
+        fragments,
     })
 end
 

@@ -1,0 +1,52 @@
+site_name: ReTractUI
+repo_url: https://github.com/daulric/ReTractUI
+repo_name: daulric/ReTractUI
+
+markdown_extensions:
+  - def_list
+  - footnotes
+  - abbr
+  - attr_list
+  - pymdownx.snippets
+  - pymdownx.details
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - admonition
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.tasklist:
+      custom_checkbox: true
+
+
+theme:
+  name: material
+  favicon: https://raw.githubusercontent.com/daulric/images/main/logo2.png
+  logo: https://raw.githubusercontent.com/daulric/images/main/logo2.png
+  icon: 
+    repo: fontawesome/brands/github
+
+  palette:
+    primary: default
+    accent: indigo
+    scheme: slate
+    toggle:
+        icon: material/brightness-4
+        name: Switch to system preference
+
+
+  features:
+    content.code.copy
+    content.code.select
+    content.code.annotate
+    content.tooltips
+    navigation.tabs
+    navigation.tracking
+    #navigation.tabs.sticky
