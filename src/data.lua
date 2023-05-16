@@ -7,7 +7,7 @@ data.Event = {}
 
 setmetatable(data.Change, {
     __index = function(_self, index)
-        return "Changed "..index
+        return "Changed:"..index
     end
 })
 

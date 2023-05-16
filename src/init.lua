@@ -1,30 +1,27 @@
 -- \\ Utils // --
-local Help = require(script:WaitForChild("help"))
-local Mount = require(script:WaitForChild("mountElement"))
-local element = require(script:WaitForChild("Element"))
-local component = require(script:WaitForChild("Component"))
 local data = require(script:WaitForChild("data"))
 local signal = require(script:WaitForChild("Signal"))
+
+local nodes = script:WaitForChild("nodes")
+
+local VirtualNode = require(script:WaitForChild("VirtualNode"))
+local createElement = require(nodes:WaitForChild("createElement"))
+local createFragment = require(nodes:WaitForChild("createFragment"))
 
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
-local Uact: Help.Element = freeze({
-    createElement = element.createElement,
-    createFragment = element.createFragment,
+local Uact ={
+    mount = VirtualNode.mount,
+    unmount = VirtualNode.unmount,
+    update = VirtualNode.update,
 
-    mount = Mount.mount,
-    unmount = Mount.unmount,
-    unmountChildren = Mount.unmountChildren,
-    update = Mount.update,
-
-    GetElements = Mount.GetElements,
-    Component = component,
+    createElement = createElement,
+    createFragment = createFragment,
 
     Change = data.Change,
     Event = data.Event,
+}
 
-    createEvent = signal.new
-})
-
+freeze(Uact)
 return Uact
