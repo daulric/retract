@@ -9,7 +9,7 @@
       
       
       
-        <link rel="prev" href="../Change/">
+        <link rel="prev" href="../Component/">
       
       
         <link rel="next" href="../Event/">
@@ -321,6 +321,20 @@
               
   
   
+  
+    <li class="md-nav__item">
+      <a href="../Component/" class="md-nav__link">
+        Component
+      </a>
+    </li>
+  
+
+            
+          
+            
+              
+  
+  
     
   
   
@@ -377,6 +391,13 @@
           <li class="md-nav__item">
   <a href="#functional-elements" class="md-nav__link">
     Functional Elements
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#component-element" class="md-nav__link">
+    Component Element
   </a>
   
 </li>
@@ -495,6 +516,13 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#component-element" class="md-nav__link">
+    Component Element
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -582,35 +610,59 @@
 </span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a>    <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;ReTract&quot;</span>
 </span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="p">})</span>
 </span></code></pre></div></p>
+<h3 id="component-element">Component Element</h3>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kd">local</span> <span class="n">myComp</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">Component</span><span class="p">:</span><span class="n">extend</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="n">string</span><span class="p">)</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kr">function</span> <span class="nc">myComp</span><span class="p">:</span><span class="nf">init</span><span class="p">()</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="n">self</span><span class="p">:</span><span class="n">setState</span><span class="p">({</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;John&quot;</span>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>    <span class="p">})</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="kr">end</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a><span class="kr">function</span> <span class="nc">myComp</span><span class="p">:</span><span class="nf">render</span><span class="p">()</span>
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>    <span class="kr">return</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;TextLabel&quot;</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">name</span> <span class="c1">-- john</span>
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>        <span class="n">Text</span> <span class="o">=</span> <span class="n">self</span><span class="p">.</span><span class="n">state</span><span class="p">.</span><span class="n">text</span>
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>    <span class="p">})</span>
+</span><span id="__span-3-14"><a id="__codelineno-3-14" name="__codelineno-3-14" href="#__codelineno-3-14"></a><span class="kr">end</span>
+</span><span id="__span-3-15"><a id="__codelineno-3-15" name="__codelineno-3-15" href="#__codelineno-3-15"></a>
+</span><span id="__span-3-16"><a id="__codelineno-3-16" name="__codelineno-3-16" href="#__codelineno-3-16"></a><span class="kr">return</span> <span class="n">myComp</span>
+</span><span id="__span-3-17"><a id="__codelineno-3-17" name="__codelineno-3-17" href="#__codelineno-3-17"></a>
+</span><span id="__span-3-18"><a id="__codelineno-3-18" name="__codelineno-3-18" href="#__codelineno-3-18"></a><span class="c1">-- In the Local Script</span>
+</span><span id="__span-3-19"><a id="__codelineno-3-19" name="__codelineno-3-19" href="#__codelineno-3-19"></a>
+</span><span id="__span-3-20"><a id="__codelineno-3-20" name="__codelineno-3-20" href="#__codelineno-3-20"></a><span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="nb">require</span><span class="p">(</span><span class="n">path</span><span class="p">.</span><span class="n">to</span><span class="p">.</span><span class="n">module</span><span class="p">),</span> <span class="p">{</span>
+</span><span id="__span-3-21"><a id="__codelineno-3-21" name="__codelineno-3-21" href="#__codelineno-3-21"></a>    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;john doe is the best&quot;</span> <span class="c1">-- &gt; this will add to the state.</span>
+</span><span id="__span-3-22"><a id="__codelineno-3-22" name="__codelineno-3-22" href="#__codelineno-3-22"></a><span class="p">})</span>
+</span></code></pre></div>
 <h2 id="fragments"><strong>Fragments</strong></h2>
 <p>Instead of Using Create Element to have children, you can use fragments to create multiple children.</p>
 <h3 id="api">Api</h3>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">type</span> <span class="n">Fragment</span> <span class="o">=</span> <span class="p">{[</span><span class="n">any</span><span class="p">]:</span> <span class="n">elements</span><span class="p">}</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="kd">local</span> <span class="n">chidrens</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createFragment</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">Fragment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Fragments</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">type</span> <span class="n">Fragment</span> <span class="o">=</span> <span class="p">{[</span><span class="n">any</span><span class="p">]:</span> <span class="n">elements</span><span class="p">}</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="kd">local</span> <span class="n">chidrens</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createFragment</span><span class="p">(</span><span class="n">index</span><span class="p">:</span> <span class="n">Fragment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Fragments</span>
 </span></code></pre></div>
 <h3 id="example">Example</h3>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kd">local</span> <span class="n">Fragment</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createFragment</span><span class="p">({</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;StringValue&quot;</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>        <span class="n">Value</span> <span class="o">=</span> <span class="s2">&quot;Fragment working&quot;</span><span class="p">,</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract String&quot;</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="p">}),</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;BoolValue&quot;</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>        <span class="n">Value</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract Boolean&quot;</span>
-</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="p">})</span>
-</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="p">})</span>
-</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a>
-</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a><span class="c1">-- parenting fragments to ScreenGui</span>
-</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a><span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;ScreenGui&quot;</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTractUI&quot;</span><span class="p">,</span>
-</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="p">},</span> <span class="p">{</span>
-</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="n">Frame</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span> <span class="p">{</span>
-</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract Frame&quot;</span><span class="p">,</span>
-</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>        <span class="n">Size</span> <span class="o">=</span> <span class="n">Udim2</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a>    <span class="p">}),</span>
-</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="n">Fragment</span><span class="p">,</span> <span class="c1">-- Fragment in the components area</span>
-</span><span id="__span-4-21"><a id="__codelineno-4-21" name="__codelineno-4-21" href="#__codelineno-4-21"></a><span class="p">})</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kd">local</span> <span class="n">Fragment</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createFragment</span><span class="p">({</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>    <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;StringValue&quot;</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>        <span class="n">Value</span> <span class="o">=</span> <span class="s2">&quot;Fragment working&quot;</span><span class="p">,</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract String&quot;</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>    <span class="p">}),</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>    <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;BoolValue&quot;</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>        <span class="n">Value</span> <span class="o">=</span> <span class="kc">true</span><span class="p">,</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract Boolean&quot;</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>    <span class="p">})</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">})</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="c1">-- parenting fragments to ScreenGui</span>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;ScreenGui&quot;</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a>    <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTractUI&quot;</span><span class="p">,</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="p">},</span> <span class="p">{</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a>    <span class="n">Frame</span> <span class="o">=</span> <span class="n">ReTractUI</span><span class="p">.</span><span class="n">createElement</span><span class="p">(</span><span class="s2">&quot;Frame&quot;</span><span class="p">,</span> <span class="p">{</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a>        <span class="n">Name</span> <span class="o">=</span> <span class="s2">&quot;ReTract Frame&quot;</span><span class="p">,</span>
+</span><span id="__span-5-18"><a id="__codelineno-5-18" name="__codelineno-5-18" href="#__codelineno-5-18"></a>        <span class="n">Size</span> <span class="o">=</span> <span class="n">Udim2</span><span class="p">.</span><span class="n">new</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</span><span id="__span-5-19"><a id="__codelineno-5-19" name="__codelineno-5-19" href="#__codelineno-5-19"></a>    <span class="p">}),</span>
+</span><span id="__span-5-20"><a id="__codelineno-5-20" name="__codelineno-5-20" href="#__codelineno-5-20"></a>    <span class="n">Fragment</span><span class="p">,</span> <span class="c1">-- Fragment in the components area</span>
+</span><span id="__span-5-21"><a id="__codelineno-5-21" name="__codelineno-5-21" href="#__codelineno-5-21"></a><span class="p">})</span>
 </span></code></pre></div>
 
 
