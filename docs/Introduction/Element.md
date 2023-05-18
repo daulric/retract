@@ -40,6 +40,33 @@ ReTract.createElement(build, {
 })
 ```
 
+### Component Element
+```lua
+local myComp = ReTractUI.Component:extend(name: string)
+
+function myComp:init()
+    self:setState({
+        name = "John"
+    })
+end
+
+function myComp:render()
+    return ReTractUI.createElement("TextLabel", {
+        Name = self.state.name -- john
+        Text = self.state.text
+    })
+end
+
+return myComp
+
+-- In the Local Script
+
+ReTractUI.createElement(require(path.to.module), {
+    text = "john doe is the best" -- > this will add to the state.
+})
+
+```
+
 ## **Fragments**
 Instead of Using Create Element to have children, you can use fragments to create multiple children.
 

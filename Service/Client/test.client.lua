@@ -1,6 +1,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Uact = require(game.ReplicatedStorage:WaitForChild("Uact"))
+local Uact = require(game.ReplicatedStorage:WaitForChild("ReTractUI"))
+local testComponent = require(game.ReplicatedStorage.test)
 
 local value = Instance.new("StringValue")
 value.Value = "hello"
@@ -45,6 +46,10 @@ local test = Uact.createElement("ScreenGui", {
     hello = Uact.createElement(getTime, {
         Time = os.clock()
     }),
+    testcomp = Uact.createElement(testComponent, {
+        num = 10,
+        name = "John"
+    })
 })
 
 local handle = Uact.mount(test, Players.LocalPlayer.PlayerGui)

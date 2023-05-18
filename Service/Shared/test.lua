@@ -1,9 +1,14 @@
-local Uact = require(game.ReplicatedStorage.Uact)
+local Uact = require(game.ReplicatedStorage.ReTractUI)
 
 local Comp = Uact.Component:extend()
 
-return function (props)
-    props.num = 1
+function Comp:init()
+    self:setState({
+        bitcoin = 10
+    })
+end
+
+function Comp:render()
     return Uact.createElement("TextButton", {
         Name = "2",
         Size = UDim2.fromOffset(200, 100),
@@ -11,10 +16,13 @@ return function (props)
         Text = "Hello",
         Font = Enum.Font.Code,
         [Uact.Event.MouseButton1Click] = function(element)
-            element.Text = "Hello ".. props.name
+            element.Text = "Hello ".. self.state.name
             print(element.Text)
-            props.num += 1
-            props.name = "random"..props.num
+            self:setState(function(state)
+                state.num += 1
+                state.name = "random"..state.num
+                return state
+            end)
         end,
         [Uact.Change.Text] = function(element)
             print("text changed:", element.Text)
@@ -22,3 +30,5 @@ return function (props)
         end,
     })
 end
+
+return Comp

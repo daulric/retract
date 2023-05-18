@@ -7,7 +7,7 @@
             "$path": "Service/Shared",
             "$ignoreUnknownInstances": true,
 
-            "Uact": {
+            "ReTractUI": {
                 "$path": "src"
             }
         },

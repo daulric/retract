@@ -76,7 +76,31 @@ function preMount(element, tree)
 
     if type(element.class) == "function" then
         local newElement = element.class(element.props)
+        element.components = {}
         preMount(newElement, tree)
+    end
+
+    if type(element.class) == "table" then
+        local newElement = element.class
+        element.components = {}
+
+        if newElement.isComponent then
+
+            newElement:setState(element.props)
+
+            if newElement.init then
+                local success, err = pcall(newElement.init, newElement)
+                assert(success, err)
+            end
+    
+            if newElement.render then
+                local elements = newElement:render()
+                assert(elements == nil, `there is nothing to render; {debug.traceback()}`)
+                preMount(elements, tree)
+            end
+
+        end
+
     end
 
 end
@@ -85,8 +109,8 @@ function mount(element, tree)
 
     if type(element) == "table" then
         preMount(element, tree)
+        task.wait()
         table.insert(Trees, element)
-        print(Trees)
         return element
     end
 

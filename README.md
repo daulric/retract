@@ -2,7 +2,7 @@
 
 ## **Method 1: Wally**
 
-### Install the package using [wally](https://wally.run/package/daulric/uact)
+### Install the package using [wally](https://wally.run/package/daulric/retractui)
 
 ## **Method 2: Direct**
 

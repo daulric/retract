@@ -1,5 +1,11 @@
 You can create event signal with ReTractUI. 
 
+## Api
+```lua
+ReTractUI.Event[object event] --> this will retun the event name for the object
+```
+
+## Example
 ```lua
 ReTractUI.createElement("TextButton", {
     [ReTractUI.Event.MouseButton1Click] = function(element)

@@ -46,7 +46,7 @@ function Component:extend(name)
 
 	setmetatable(class, Component)
 
-	class.isExtended= true
+	class.isComponent = true
 
 	return class
 end

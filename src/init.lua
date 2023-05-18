@@ -7,11 +7,12 @@ local nodes = script:WaitForChild("nodes")
 local VirtualNode = require(script:WaitForChild("VirtualNode"))
 local createElement = require(nodes:WaitForChild("createElement"))
 local createFragment = require(nodes:WaitForChild("createFragment"))
+local ComponentAspect = require(script:WaitForChild("Component"))
 
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
-local Uact ={
+local ReTractUI = {
     mount = VirtualNode.mount,
     unmount = VirtualNode.unmount,
     update = VirtualNode.update,
@@ -21,7 +22,8 @@ local Uact ={
 
     Change = data.Change,
     Event = data.Event,
+    Component = ComponentAspect,
 }
 
-freeze(Uact)
-return Uact
+freeze(ReTractUI)
+return ReTractUI
