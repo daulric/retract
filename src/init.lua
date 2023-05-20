@@ -16,7 +16,7 @@ local Signal = require(system:WaitForChild("Signal"))
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
-local ReTractUI = {
+local ReTract = {
     mount = VirtualNode.mount,
     unmount = VirtualNode.unmount,
     update = VirtualNode.update,
@@ -33,5 +33,5 @@ local ReTractUI = {
     createSignal = Signal.new,
 }
 
-freeze(ReTractUI)
-return ReTractUI
+freeze(ReTract)
+return ReTract

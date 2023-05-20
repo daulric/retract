@@ -136,7 +136,7 @@ function unmount(tree)
 
     end
 
-    return path
+    return path, parentTree
 end
 
 function update(currentTree, newTree)

@@ -1,4 +1,4 @@
-local Uact = require(game.ReplicatedStorage.ReTractUI)
+local Uact = require(game.ReplicatedStorage.ReTract)
 
 local Comp = Uact.Component:extend()
 
@@ -11,7 +11,7 @@ function Comp:init()
 end
 
 function Comp:render()
-    --[[return Uact.createElement("TextButton", {
+    return Uact.createElement("TextButton", {
         Name = "Roblox",
         Size = UDim2.new(1, 0, 1, 0),
         TextScaled = true,
@@ -29,7 +29,7 @@ function Comp:render()
             print("text changed:", element.Text)
             element:SetAttribute("Hi", element.Text)
         end,
-    })]]
+    })
 end
 
 return Comp

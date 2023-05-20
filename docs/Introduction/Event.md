@@ -1,14 +1,14 @@
-You can create event signal with ReTractUI. 
+You can create event signal with ReTract. 
 
 ## Api
 ```lua
-ReTractUI.Event[object event] --> this will retun the event name for the object
+ReTract.Event[object event] --> this will retun the event name for the object
 ```
 
 ## Example
 ```lua
-ReTractUI.createElement("TextButton", {
-    [ReTractUI.Event.MouseButton1Click] = function(element)
+ReTract.createElement("TextButton", {
+    [ReTract.Event.MouseButton1Click] = function(element)
         print(element.Name)
     end,
 })

@@ -1,4 +1,4 @@
-You can build, destroy or update elements with ReTractUI. 
+You can build, destroy or update elements with ReTract. 
 
 Just know how to make the element. 😂
 
@@ -21,7 +21,7 @@ Element param derived from the [Element Page](./Element.md)
 This disconnect the tree from the Hub and destroy the instance with it.
 
 ```lua
-ReTractUI.unmount(tree: element) -> Instance
+ReTract.unmount(tree: element) -> Instance
 ```
 This will return the parent that was in the tree.
 
@@ -36,12 +36,12 @@ All this does is unmount the current tree and mount the new tree.
 
 ### Api
 ```
-ReTractUI.update(currentTree, newTree) -> element
+ReTract.update(currentTree, newTree) -> element
 ```
 
 ### Example
 ```lua
-handle = ReTractUI.update(handle, newTree)
+handle = ReTract.update(handle, newTree)
 ```
 
 The handle param derived from [here](./Build.md#example).

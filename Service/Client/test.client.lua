@@ -1,6 +1,6 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Uact = require(game.ReplicatedStorage:WaitForChild("ReTractUI"))
+local Uact = require(game.ReplicatedStorage:WaitForChild("ReTract"))
 local testComponent = require(game.ReplicatedStorage.test)
 
 local value = Instance.new("StringValue")

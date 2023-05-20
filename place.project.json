@@ -7,13 +7,13 @@
             "$path": "Service/Shared",
             "$ignoreUnknownInstances": true,
 
-            "ReTractUI": {
+            "ReTract": {
                 "$path": "src"
             },
 
             "ReTractPlugin": {
                 "$path": "Plugin",
-                "ReTractUI": {
+                "ReTract": {
                     "$path": "src"
                 }
             }

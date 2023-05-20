@@ -6,15 +6,15 @@ There are two types of Elements class:
 type props = {[any]: any}
 type children = {[any]: any}
 
-ReTractUI.createElement(class: any, properties: props, components: children) -> element
+ReTract.createElement(class: any, properties: props, components: children) -> element
 ```
 
 ### Example When Using Element
 ```lua
-ReTractUI.createElement("ScreenGui", {
-    Name = "ReTractUI",
+ReTract.createElement("ScreenGui", {
+    Name = "ReTract",
 }, {
-    Frame = ReTractUI.createElement("Frame", {
+    Frame = ReTract.createElement("Frame", {
         Name = "ReTract Frame",
         Size = Udim2.new(0.5, 0, 0.5, 0)
     })
@@ -25,10 +25,10 @@ ReTractUI.createElement("ScreenGui", {
 Elements can be functional as well.
 ```lua
 function build(props)
-    return ReTractUI.createElement("ScreenGui", {
-        Name = "ReTractUI"
+    return ReTract.createElement("ScreenGui", {
+        Name = "ReTract"
     }, {
-        Frame = ReTractUI.createElement("Frame", {
+        Frame = ReTract.createElement("Frame", {
             Name = props.name,
             Size = Udim2.new(0.5, 0, 0.5, 0)
         })
@@ -42,7 +42,7 @@ ReTract.createElement(build, {
 
 ### Component Element
 ```lua
-local myComp = ReTractUI.Component:extend(name: string)
+local myComp = ReTract.Component:extend(name: string)
 
 function myComp:init()
     self:setState({
@@ -51,7 +51,7 @@ function myComp:init()
 end
 
 function myComp:render()
-    return ReTractUI.createElement("TextLabel", {
+    return ReTract.createElement("TextLabel", {
         Name = self.state.name -- john
         Text = self.state.text
     })
@@ -61,7 +61,7 @@ return myComp
 
 -- In the Local Script
 
-ReTractUI.createElement(require(path.to.module), {
+ReTract.createElement(require(path.to.module), {
     text = "john doe is the best" -- > this will add to the state.
 })
 
@@ -75,28 +75,28 @@ Instead of Using Create Element to have children, you can use fragments to creat
 ```lua
 type Fragment = {[any]: elements}
 
-local chidrens = ReTractUI.createFragment(index: Fragment) -> Fragments
+local chidrens = ReTract.createFragment(index: Fragment) -> Fragments
 ```
 
 ### Example
 
 ```lua
-local Fragment = ReTractUI.createFragment({
-    ReTractUI.createElement("StringValue", {
+local Fragment = ReTract.createFragment({
+    ReTract.createElement("StringValue", {
         Value = "Fragment working",
         Name = "ReTract String"
     }),
-    ReTractUI.createElement("BoolValue", {
+    ReTract.createElement("BoolValue", {
         Value = true,
         Name = "ReTract Boolean"
     })
 })
 
 -- parenting fragments to ScreenGui
-ReTractUI.createElement("ScreenGui", {
-    Name = "ReTractUI",
+ReTract.createElement("ScreenGui", {
+    Name = "ReTract",
 }, {
-    Frame = ReTractUI.createElement("Frame", {
+    Frame = ReTract.createElement("Frame", {
         Name = "ReTract Frame",
         Size = Udim2.new(0.5, 0, 0.5, 0)
     }),

@@ -1,6 +1,6 @@
 site_name: ReTract
-repo_url: https://github.com/daulric/ReTractUI
-repo_name: daulric/ReTractUI
+repo_url: https://github.com/daulric/ReTract
+repo_name: daulric/ReTract
 
 markdown_extensions:
   - def_list

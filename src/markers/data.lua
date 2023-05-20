@@ -1,5 +1,5 @@
 local data = {}
-local markers = script.Parent:WaitForChild("markers")
+local markers = script.Parent
 local Type = require(markers.Type)
 
 data.Change = {}
@@ -17,12 +17,9 @@ setmetatable(data.Change, {
 
         setmetatable(listener, {
             __tostring = function(self)
-                return ("ReTractChange(%s)"):format(self.name)
+                return ("ReTract.Change(%s)"):format(self.name)
             end
         })
-
-        data.Change[index] = listener
-        print(listener)
         return listener
     end
 })
@@ -36,11 +33,10 @@ setmetatable(data.Event, {
 
         setmetatable(listener, {
             __tostring = function(self)
-                return ("ReTractEvent(%s)"):format(self.name)
+                return ("ReTract.Event(%s)"):format(self.name)
             end
         })
 
-        data.Event[index] = listener
         return listener
     end
 })
@@ -54,7 +50,7 @@ setmetatable(data.Attribute, {
 
         setmetatable(listener, {
             __tostring = function(self)
-                return ("ReTractAttribute(%s)"):format(self.name)
+                return ("ReTract.Attribute(%s)"):format(self.name)
             end
         })
 
