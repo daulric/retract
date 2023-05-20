@@ -4,17 +4,18 @@ local Comp = Uact.Component:extend()
 
 function Comp:init()
     self:setState({
-        bitcoin = 10
+		bitcoin = 10,
+		name = "John",
+		num = 10
     })
 end
 
 function Comp:render()
-    return Uact.createElement("TextButton", {
-        Name = "2",
-        Size = UDim2.fromOffset(200, 100),
+    --[[return Uact.createElement("TextButton", {
+        Name = "Roblox",
+        Size = UDim2.new(1, 0, 1, 0),
         TextScaled = true,
-        Text = "Hello",
-        Font = Enum.Font.Code,
+        Text = "Ulric",
         [Uact.Event.MouseButton1Click] = function(element)
             element.Text = "Hello ".. self.state.name
             print(element.Text)
@@ -28,7 +29,7 @@ function Comp:render()
             print("text changed:", element.Text)
             element:SetAttribute("Hi", element.Text)
         end,
-    })
+    })]]
 end
 
 return Comp

@@ -17,4 +17,4 @@ You can download ReTractUI package straight from Wally.
     New Updates will be coming to ReTractUI in the future
 
 
-[<img src="https://wally.run/static/wally-logo.7f93c2d5.svg" width="200" height="100">](https://wally.run/package/daulric/retractui)
+[<img src="https://wally.run/static/wally-logo.7f93c2d5.svg" width="200" height="100">](https://wally.run/package/daulric/retract)

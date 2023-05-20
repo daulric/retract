@@ -1,17 +1,11 @@
 local Component = {}
 Component.__index = Component
-Component.state = {}
-Component.props = {}
-table.freeze(Component.state)
 
 function Component:setState(value: any)
 
-	if not table.isfrozen(Component.state) and Component.state.isState ~= true then
-		warn("this table was not properly set!")
-		return
-	end
+	assert(table.isfrozen(self.state) or self.state.isState == true, `This is an invalid state. Please configure your state; Table ID: {tostring(self.state)}`)
 
-	local NewClassState = table.clone(Component.state)
+	local NewClassState = table.clone(self.state)
 
 	if type(value) == "table" then
 		for index, stuff in pairs(value) do
@@ -30,8 +24,8 @@ function Component:setState(value: any)
 	end
 
 	NewClassState.isState = true
-	Component.state = NewClassState
-	table.freeze(Component.state)
+	self.state = NewClassState
+	table.freeze(self.state)
 end
 
 function Component:extend(name)
@@ -43,11 +37,11 @@ function Component:extend(name)
 	end
 
 	class.name = name
-
-	setmetatable(class, Component)
-
+	class.state = {isState = true}
+	table.freeze(class.state)
 	class.isComponent = true
 
+	setmetatable(class, Component)
 	return class
 end
 

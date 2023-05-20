@@ -1,7 +1,11 @@
 local VirtualTree = {}
 
-local ExsistingFunctions = {}
 local Trees = {}
+
+local system = script.Parent:WaitForChild("system")
+local markers = script.Parent:WaitForChild("markers")
+local Type = require(markers.Type)
+local EventManager = require(system.EventManager)
 
 function createInstance(name, props)
     local element
@@ -14,31 +18,12 @@ function createInstance(name, props)
 
     for index, property in pairs(props) do
 
-        if string.find(index, "Changed") then
-            local PropertyType = string.split(index, ":")[2]
-
-            local connection = element:GetPropertyChangedSignal(PropertyType):Connect(function(...)
-                property(element, ...)
-            end)
-
-            if table.find(ExsistingFunctions, property) then
-                connection:Disconnect()
-            else
-                table.insert(ExsistingFunctions, property)
-            end
-
-        elseif typeof(element[index]) == "RBXScriptSignal" then
-
-            local connection = element[index]:Connect(function(...)
-                property(element, ...)
-            end)
-        
-            if table.find(ExsistingFunctions, property) then
-                connection:Disconnect()
-            else
-                table.insert(ExsistingFunctions, property)
-            end
-
+        if index.Type == Type.Change then
+            EventManager:PropertyChange(element, index, property)
+        elseif index.Type == Type.Attribute then
+            element:SetAttribute(index.name, property)
+        elseif index.Type == Type.Event then
+            EventManager:SignalEvent(element, index, property)
         else
             element[index] = property
         end
@@ -53,7 +38,7 @@ function preMount(element, tree)
     if type(element.class) == "string" then
         local completeInstance = createInstance(element.class, element.props)
         element.instance = completeInstance
-        
+
         for _, value in pairs(element.components) do
 
             if value.isFragment then
@@ -72,12 +57,13 @@ function preMount(element, tree)
             completeInstance.Parent = tree
         end
 
+        return completeInstance
     end
 
     if type(element.class) == "function" then
         local newElement = element.class(element.props)
         element.components = {}
-        preMount(newElement, tree)
+        element.instance = preMount(newElement, tree)
     end
 
     if type(element.class) == "table" then
@@ -95,8 +81,8 @@ function preMount(element, tree)
     
             if newElement.render then
                 local elements = newElement:render()
-                assert(elements == nil, `there is nothing to render; {debug.traceback()}`)
-                preMount(elements, tree)
+                assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
+                element.instance = preMount(elements, tree)
             end
 
         end
@@ -150,7 +136,6 @@ function unmount(tree)
 
     end
 
-    print(Trees)
     return path
 end
 

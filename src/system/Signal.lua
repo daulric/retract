@@ -2,19 +2,16 @@ local Signal = {}
 Signal.__index = Signal
 
 function Signal.new()
-    return setmetatable({
-        _bindable = Instance.new("BindableEvent"),
-        _args = nil,
-        _argCount = nil
-    }, Signal)
-end
 
-function Signal:Connect(handle)
-    if self._bindable then
-        return self._bindable.Event:Connect(function(...)
-            handle(unpack(self._args, 1, self._argCount))
-        end)
-    end
+    local contruct = {
+        _bindable = Instance.new("BindableEvent"),
+        _argCount = nil,
+        _args = nil
+    }
+
+    setmetatable(contruct, Signal)
+    return contruct
+
 end
 
 function Signal:Fire(...)
@@ -22,6 +19,14 @@ function Signal:Fire(...)
         self._args = {...}
         self._argCount = select("#", ...)
         self._bindable:Fire()
+    end
+end
+
+function Signal:Connect(handler)
+    if self._bindable then
+        return self._bindable.Event:Connect(function()
+            handler(unpack(self._args, 1, self._argCount))
+        end)
     end
 end
 
@@ -33,7 +38,6 @@ function Signal:Destroy()
 
     self._args = nil
     self._argCount = nil
-
     setmetatable(self, nil)
 end
 

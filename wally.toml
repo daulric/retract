@@ -1,5 +1,5 @@
 [package]
-name = "daulric/retractui"
+name = "daulric/retract"
 version = "0.0.1"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
