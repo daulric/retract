@@ -13,15 +13,7 @@ function createElement(class, props, children)
             return
         end
 
-        local stuff = {isFragment = true}
-
-        for index, value in children do
-            if index ~= "isFragment" then
-                stuff[index] = value
-            end
-        end
-
-        props[Children] = stuff
+        props[Children] = children
     end
 
     local index = {

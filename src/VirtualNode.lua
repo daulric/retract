@@ -49,6 +49,13 @@ function createInstance(name, props)
     return element
 end
 
+function ManageFragment(fragment, tree)
+    for index, node in pairs(fragment.components) do
+        print("building fragment")
+        preMount(node, tree)
+    end
+end
+
 function ComponentAspectSignal(newElement, element)
 
     task.spawn(function()
@@ -74,22 +81,12 @@ end
 
 function preMount(element, tree)
 
-    if ElementType.typeof(element.class) == ElementType.Types.Host then
+    if element.Type == ElementType.Types.Host then
         local completeInstance = createInstance(element.class, element.props)
         element.instance = completeInstance
 
-        for _, value in pairs(element.children) do
-
-            if value.isFragment then
-                for index, node in pairs(value) do
-                    if index ~= "isFragment" then
-                        preMount(node, completeInstance)
-                    end
-                end
-            else
-                preMount(value, completeInstance)
-            end
-
+        for _, child in pairs(element.children) do
+            preMount(child, completeInstance)
         end
 
         if typeof(tree) == "Instance" then
@@ -99,13 +96,13 @@ function preMount(element, tree)
         return completeInstance
     end
 
-    if ElementType.typeof(element.class) == ElementType.Types.Functional then
+    if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
         element.instance = preMount(newElement, tree)
     end
 
-    if ElementType.typeof(element.class) == ElementType.Types.StatefulComponent then
+    if element.Type == ElementType.Types.StatefulComponent then
         local newElement = element.class
 
         if newElement.isComponent then
@@ -125,6 +122,17 @@ function preMount(element, tree)
 
         end
 
+    end
+
+    if element.Type == ElementType.Types.Fragment then
+
+        if element.class then
+            local newFragment = element.class
+            ManageFragment(newFragment, tree)
+        else
+            ManageFragment(element, tree)
+        end
+        
     end
 
 end
