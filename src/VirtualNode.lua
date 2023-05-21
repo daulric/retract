@@ -51,32 +51,44 @@ end
 
 function ManageFragment(fragment, tree)
     for index, node in pairs(fragment.components) do
-        print("building fragment")
         preMount(node, tree)
     end
 end
 
 function ComponentAspectSignal(newElement, element)
 
-    task.spawn(function()
-        if newElement.willUnmount then
-            ComponentSignal.unmountSignal:Connect(function(tree)
-                if tree == element then
-                    task.spawn(newElement.willUnmount, newElement)
-                end
-            end)
-        end
-    end)
+    if newElement.willUnmount then
+        ComponentSignal.willUnmount:Connect(function(tree)
+            if tree == element then
+                newElement:willUnmount()
+            end
+        end)
+    end
 
-    task.spawn(function()
-        if newElement.willUpdate then
-            ComponentSignal.updateSignal:Connect(function(tree)
-                if tree == element then
-                    task.spawn(newElement.willUpdate, newElement)
-                end
-            end)
-        end
-    end)
+    if newElement.willUpdate then
+        ComponentSignal.willUpdate:Connect(function(tree)
+            if tree == element then
+                newElement:willUpdate()
+            end
+        end)
+    end
+    
+    if newElement.didUnmount then
+        ComponentSignal.didUnmount:Connect(function(tree)
+            if tree == element then
+                newElement:didUnmount()
+            end
+        end)
+    end
+
+    if newElement.didUpdate then
+        ComponentSignal.didUpdate:Connect(function(tree)
+            if tree == element then
+                newElement:didUpdate()
+            end
+        end)
+    end
+
 end
 
 function preMount(element, tree)
@@ -113,7 +125,7 @@ function preMount(element, tree)
                 local success, err = pcall(newElement.init, newElement)
                 assert(success, err)
             end
-    
+
             if newElement.render then
                 local elements = newElement:render()
                 assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
@@ -194,16 +206,17 @@ end
 
 function finishedUnmount(element)
     -- // stuff will be added here
-    ComponentSignal.unmountSignal:Fire(element)
-    task.wait()
-    return unmount(element)
+    ComponentSignal.willUnmount:Fire(element)
+    unmount(element)
+    ComponentSignal.didUnmount:Fire(element)
 end
 
 function finishedUpdate(currentTree, element)
     --// Stuff will be added here
-    ComponentSignal.updateSignal:Fire(currentTree)
-    task.wait()
-    return update(currentTree, element)
+    ComponentSignal.willUpdate:Fire(currentTree)
+    local updated = update(currentTree, element)
+    ComponentSignal.didUpdate:Fire(updated)
+    return updated
 end
 
 VirtualNode.mount = mount
