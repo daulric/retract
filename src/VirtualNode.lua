@@ -1,11 +1,14 @@
-local VirtualTree = {}
+local VirtualNode = {}
 
 local Trees = {}
 
 local system = script.Parent:WaitForChild("system")
 local markers = script.Parent:WaitForChild("markers")
 local Type = require(markers.Type)
-local EventManager = require(system.EventManager)
+local ElementType = require(markers.ElementType)
+local Children = require(markers.Children)
+
+local ComponentSignal = require(system.ComponentSignal)
 
 function createInstance(name, props)
     local element
@@ -18,12 +21,25 @@ function createInstance(name, props)
 
     for index, property in pairs(props) do
 
+        -- This is for getting the children in the Component
+        if index == Children then
+            continue
+        end
+
         if index.Type == Type.Change then
-            EventManager:PropertyChange(element, index, property)
+            element:GetPropertyChangedSignal(index.name):Connect(function(...)
+                property(element, ...)
+            end)
+        elseif index.Type == Type.AttributeChange then
+            element:GetAttributeChangedSignal(index.name):Connect(function(...)
+                property(element, ...)
+            end)
+        elseif index.Type == Type.Event then
+            element[index.name]:Connect(function(...)
+                property(element, ...)
+            end)
         elseif index.Type == Type.Attribute then
             element:SetAttribute(index.name, property)
-        elseif index.Type == Type.Event then
-            EventManager:SignalEvent(element, index, property)
         else
             element[index] = property
         end
@@ -33,13 +49,36 @@ function createInstance(name, props)
     return element
 end
 
+function ComponentAspectSignal(newElement, element)
+
+    task.spawn(function()
+        if newElement.willUnmount then
+            ComponentSignal.unmountSignal:Connect(function(tree)
+                if tree == element then
+                    task.spawn(newElement.willUnmount, newElement)
+                end
+            end)
+        end
+    end)
+
+    task.spawn(function()
+        if newElement.willUpdate then
+            ComponentSignal.updateSignal:Connect(function(tree)
+                if tree == element then
+                    task.spawn(newElement.willUpdate, newElement)
+                end
+            end)
+        end
+    end)
+end
+
 function preMount(element, tree)
 
-    if type(element.class) == "string" then
+    if ElementType.typeof(element.class) == ElementType.Types.Host then
         local completeInstance = createInstance(element.class, element.props)
         element.instance = completeInstance
 
-        for _, value in pairs(element.components) do
+        for _, value in pairs(element.children) do
 
             if value.isFragment then
                 for index, node in pairs(value) do
@@ -60,19 +99,18 @@ function preMount(element, tree)
         return completeInstance
     end
 
-    if type(element.class) == "function" then
+    if ElementType.typeof(element.class) == ElementType.Types.Functional then
         local newElement = element.class(element.props)
-        element.components = {}
+        assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
         element.instance = preMount(newElement, tree)
     end
 
-    if type(element.class) == "table" then
+    if ElementType.typeof(element.class) == ElementType.Types.StatefulComponent then
         local newElement = element.class
-        element.components = {}
 
         if newElement.isComponent then
-
-            newElement:setState(element.props)
+            newElement.props = element.props
+            ComponentAspectSignal(newElement, element)
 
             if newElement.init then
                 local success, err = pcall(newElement.init, newElement)
@@ -144,8 +182,24 @@ function update(currentTree, newTree)
     return mount(newTree, path)
 end
 
-VirtualTree.mount = mount
-VirtualTree.update = update
-VirtualTree.unmount = unmount
+--// This is the Finished functions for virtual node
 
-return VirtualTree
+function finishedUnmount(element)
+    -- // stuff will be added here
+    ComponentSignal.unmountSignal:Fire(element)
+    task.wait()
+    return unmount(element)
+end
+
+function finishedUpdate(currentTree, element)
+    --// Stuff will be added here
+    ComponentSignal.updateSignal:Fire(currentTree)
+    task.wait()
+    return update(currentTree, element)
+end
+
+VirtualNode.mount = mount
+VirtualNode.update = finishedUpdate
+VirtualNode.unmount = finishedUnmount
+
+return VirtualNode

@@ -1,10 +1,10 @@
 -- \\ Utils // --
-
 local nodes = script:WaitForChild("nodes")
 local system = script:WaitForChild("system")
 local markers = script:WaitForChild("markers")
 
 local data = require(markers:WaitForChild("data"))
+local Children = require(markers.Children)
 
 local VirtualNode = require(script:WaitForChild("VirtualNode"))
 local createElement = require(nodes:WaitForChild("createElement"))
@@ -24,9 +24,14 @@ local ReTract = {
     createElement = createElement,
     createFragment = createFragment,
 
+    --// Event, Property, and Attribute Signals
     Change = data.Change,
     Event = data.Event,
+    AttributeChange = data.AttributeChange,
+    
+    --// Attributes and Children
     Attribute = data.Attribute,
+    Children = Children,
 
     Component = ComponentAspect,
 
