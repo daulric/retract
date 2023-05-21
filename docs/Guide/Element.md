@@ -1,17 +1,14 @@
-There are two types of Elements class:
+There are three types of Elements:
+
+* Host
+* Functional
+* Stateful
 
 ## **Element**
-### Api For Element
-```lua
-type props = {[any]: any}
-type children = {[any]: any}
 
-ReTract.createElement(class: any, properties: props, components: children) -> element
-```
-
-### Example When Using Element
+### Host Element
 ```lua
-ReTract.createElement("ScreenGui", {
+local handle = ReTract.createElement("ScreenGui", {
     Name = "ReTract",
 }, {
     Frame = ReTract.createElement("Frame", {
@@ -32,15 +29,11 @@ function build(props)
             Name = props.name,
             Size = Udim2.new(0.5, 0, 0.5, 0)
         })
-    })
+    }, props[ReTract.Children])
 end
-
-ReTract.createElement(build, {
-    name = "ReTract"
-})
 ```
 
-### Component Element
+### Stateful Element
 ```lua
 local myComp = ReTract.Component:extend(name: string)
 
@@ -54,34 +47,16 @@ function myComp:render()
     return ReTract.createElement("TextLabel", {
         Name = self.state.name -- john
         Text = self.state.text
-    })
+    }, self.props[ReTract.Children])
 end
 
 return myComp
-
--- In the Local Script
-
-ReTract.createElement(require(path.to.module), {
-    text = "john doe is the best" -- > this will add to the state.
-})
-
 ```
-
 ## **Fragments**
 Instead of Using Create Element to have children, you can use fragments to create multiple children.
 
-### Api
-
 ```lua
-type Fragment = {[any]: elements}
-
-local chidrens = ReTract.createFragment(index: Fragment) -> Fragments
-```
-
-### Example
-
-```lua
-local Fragment = ReTract.createFragment({
+local Fragments = ReTract.createFragment({
     ReTract.createElement("StringValue", {
         Value = "Fragment working",
         Name = "ReTract String"
@@ -100,6 +75,19 @@ ReTract.createElement("ScreenGui", {
         Name = "ReTract Frame",
         Size = Udim2.new(0.5, 0, 0.5, 0)
     }),
-    Fragment, -- Fragment in the components area
+    Fragments, -- Fragment in the components area
 })
+```
+
+## **Mounting Element**
+```lua
+local handle = ReTract.createElement(require(path.to.module), {
+    text = "john doe is the best" -- > this will add to the state.
+}, {
+    ReTract.createElement("TextLabel", {
+        Name = "Hello"
+    })
+})
+
+ReTract.mount(handle, game.Players.LocalPlayer)
 ```
