@@ -7,6 +7,7 @@ local markers = script.Parent:WaitForChild("markers")
 local Type = require(markers.Type)
 local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
+local Gateway = require(markers.Gateway)
 
 local ComponentSignal = require(system.ComponentSignal)
 
@@ -91,6 +92,18 @@ function ComponentAspectSignal(newElement, element)
 
 end
 
+function HandleGateway(element, tree)
+    local hostParent = element.props.target
+    local children = element.props[Children]
+
+    if typeof(hostParent) == "Instance" then
+        for _, node in pairs(children) do
+           task.spawn(preMount, node, tree)
+           task.spawn(preMount, node, hostParent)
+        end
+    end
+end
+
 function preMount(element, tree)
 
     if element.Type == ElementType.Types.Host then
@@ -145,6 +158,10 @@ function preMount(element, tree)
             ManageFragment(element, tree)
         end
         
+    end
+
+    if element.Type == ElementType.Types.Gateway then
+        HandleGateway(element, tree)
     end
 
 end

@@ -1,13 +1,16 @@
 local ElementType = {}
 local Symbol = require(script.Parent.Symbol)
 
+local Gateway = require(script.Parent:WaitForChild("Gateway"))
+
 local ElementKindType = {
     Host = Symbol.assign("ReTract.Element.Host"),
     Functional = Symbol.assign("ReTract.Element.Function"),
     StatefulComponent = Symbol.assign("ReTract.Element.StatefulComponent"),
 
     --// Other Stuff
-    Fragment = Symbol.assign("ReTract.Fragment")
+    Fragment = Symbol.assign("ReTract.Fragment"),
+    Gateway = Symbol.assign("ReTract.Geteway")
 }
 
 ElementType.Types = ElementKindType
@@ -30,7 +33,10 @@ function ElementType.typeof(element)
         if element.isFragment then
             return ElementKindType.Fragment
         end
-        
+    end
+
+    if element == Gateway then
+        return ElementKindType.Gateway
     end
 
 end

@@ -4,7 +4,6 @@ local system = script:WaitForChild("system")
 local markers = script:WaitForChild("markers")
 
 local data = require(markers:WaitForChild("data"))
-local Children = require(markers.Children)
 
 local VirtualNode = require(script:WaitForChild("VirtualNode"))
 local createElement = require(nodes:WaitForChild("createElement"))
@@ -31,7 +30,8 @@ local ReTract = {
     
     --// Attributes and Children
     Attribute = data.Attribute,
-    Children = Children,
+    Children = require(markers.Children),
+    Gateway = require(markers.Gateway),
 
     Component = ComponentAspect,
 
