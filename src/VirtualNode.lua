@@ -186,6 +186,7 @@ function mount(element, tree)
 
     if type(element) == "table" then
         preMount(element, tree)
+        element.Parent = tree
         task.wait()
         table.insert(Trees, element)
         return element
@@ -224,6 +225,8 @@ function unmount(tree)
     local path
 
     if findTree then
+        path = findTree.Parent
+
         if findTree.components then
             for _, value in pairs(findTree.components) do
                 if value.instance then
@@ -237,11 +240,7 @@ function unmount(tree)
             unmount(value)
         end
 
-        if findTree.instance then
-            if path == nil then
-                path = findTree.instance.Parent
-            end
-    
+        if findTree.instance then    
             findTree.instance:Destroy()
             findTree.instance = nil
         end
