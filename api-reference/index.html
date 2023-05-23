@@ -495,6 +495,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#didmount" class="md-nav__link">
+    didMount
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#willupdate" class="md-nav__link">
     willUpdate
   </a>
@@ -721,6 +728,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#didmount" class="md-nav__link">
+    didMount
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#willupdate" class="md-nav__link">
     willUpdate
   </a>
@@ -920,37 +934,45 @@ This creates an attribute in the instance</p>
 </span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>    <span class="p">})</span>
 </span><span id="__span-22-5"><a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="kr">end</span>
 </span></code></pre></div></p>
+<h3 id="didmount">didMount<a class="headerlink" href="#didmount" title="Permanent link">&para;</a></h3>
+<p>This listens for when the component is mounted.</p>
+<p><code>:didMount</code></p>
+<p><strong>Usage</strong></p>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">didMount</span><span class="p">()</span>
+</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;component is mounted!&quot;</span><span class="p">)</span>
+</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="kr">end</span>
+</span></code></pre></div>
 <h3 id="willupdate">willUpdate<a class="headerlink" href="#willupdate" title="Permanent link">&para;</a></h3>
 <p>This listens for when the component is going to be updated</p>
 <p><code>:willUpdate</code></p>
 <p><strong>Usage</strong></p>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">willUpdate</span><span class="p">()</span>
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This component is going to be updated!&quot;</span><span class="p">)</span>
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="kr">end</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">willUpdate</span><span class="p">()</span>
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;This component is going to be updated!&quot;</span><span class="p">)</span>
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="kr">end</span>
 </span></code></pre></div>
 <h3 id="didupdate">didUpdate<a class="headerlink" href="#didupdate" title="Permanent link">&para;</a></h3>
 <p>This listens for when the component is updated</p>
 <p><code>:didUpdate</code></p>
 <p><strong>Usage</strong>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">didUpdate</span><span class="p">()</span>
-</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;component was updated!&quot;</span><span class="p">)</span>
-</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a><span class="kr">end</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">didUpdate</span><span class="p">()</span>
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;component was updated!&quot;</span><span class="p">)</span>
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="kr">end</span>
 </span></code></pre></div></p>
 <h3 id="willunmount">willUnmount<a class="headerlink" href="#willunmount" title="Permanent link">&para;</a></h3>
 <p>This listens for when component is going to be be unmounted.</p>
 <p><code>:willUnmount</code></p>
 <p><strong>Usage</strong>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">willUnmount</span><span class="p">()</span>
-</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;component is going to be unmounted&quot;</span><span class="p">)</span>
-</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="kr">end</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">willUnmount</span><span class="p">()</span>
+</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;component is going to be unmounted&quot;</span><span class="p">)</span>
+</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="kr">end</span>
 </span></code></pre></div></p>
 <h3 id="didunmount">didUnmount<a class="headerlink" href="#didunmount" title="Permanent link">&para;</a></h3>
 <p>This listens for when component is unmounted</p>
 <p><code>:didUnmount</code></p>
 <p><strong>Usage</strong></p>
-<div class="language-lua highlight"><pre><span></span><code><span id="__span-26-1"><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">didUnmount</span><span class="p">()</span>
-</span><span id="__span-26-2"><a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;this component is unmounted&quot;</span><span class="p">)</span>
-</span><span id="__span-26-3"><a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="kr">end</span>
+<div class="language-lua highlight"><pre><span></span><code><span id="__span-27-1"><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a><span class="kr">function</span> <span class="nc">component</span><span class="p">:</span><span class="nf">didUnmount</span><span class="p">()</span>
+</span><span id="__span-27-2"><a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;this component is unmounted&quot;</span><span class="p">)</span>
+</span><span id="__span-27-3"><a id="__codelineno-27-3" name="__codelineno-27-3" href="#__codelineno-27-3"></a><span class="kr">end</span>
 </span></code></pre></div>
 
 
