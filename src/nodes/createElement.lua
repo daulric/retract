@@ -9,7 +9,7 @@ function createElement(class, props, children)
 
     if children ~= nil then
         if props[Children] ~= nil then
-            warn("there is already children in the ")
+            warn("there is already children in the props")
             return
         end
 

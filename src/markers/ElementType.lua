@@ -1,4 +1,6 @@
-local ElementType = {}
+local ElementTypeInternal = {}
+local ElementType = newproxy(true)
+
 local Symbol = require(script.Parent.Symbol)
 
 local Gateway = require(script.Parent:WaitForChild("Gateway"))
@@ -10,19 +12,25 @@ local ElementKindType = {
 
     --// Other Stuff
     Fragment = Symbol.assign("ReTract.Fragment"),
-    Gateway = Symbol.assign("ReTract.Geteway")
+    Gateway = Symbol.assign("ReTract.Gateway")
 }
 
-ElementType.Types = ElementKindType
+ElementTypeInternal.Types = ElementKindType
 
-function ElementType.typeof(element)
+local Types = {
+    ["string"] = ElementKindType.Host,
+    ["function"] = ElementKindType.Functional,
+    [Gateway] = ElementKindType.Gateway
+}
 
-    if typeof(element) == "string" then
-        return ElementKindType.Host
+function ElementTypeInternal.typeof(element)
+
+    if Types[typeof(element)] then
+        return Types[typeof(element)]
     end
 
-    if typeof(element) == "function" then
-        return ElementKindType.Functional
+    if element == Gateway then
+        return Types[Gateway]
     end
 
     if typeof(element) == "table" then
@@ -35,10 +43,8 @@ function ElementType.typeof(element)
         end
     end
 
-    if element == Gateway then
-        return ElementKindType.Gateway
-    end
-
 end
+
+getmetatable(ElementType).__index = ElementTypeInternal
 
 return ElementType

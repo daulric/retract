@@ -90,36 +90,30 @@ function ComponentAspectSignal(newElement, element)
         end)
     end
 
+    if newElement.didMount then
+        ComponentSignal.didMount:Connect(function(tree)
+            if tree == element then
+                newElement:didMount()
+            end
+        end)
+    end
+
 end
 
-function HandleGateway(element, tree)
-    local hostParent = element.props.target
+function HandleGateway(element)
+    local hostParent = element.props.path
     local children = element.props[Children]
 
     if typeof(hostParent) == "Instance" then
+
         for _, node in pairs(children) do
-           task.spawn(preMount, node, tree)
-           task.spawn(preMount, node, hostParent)
+            preMount(node, hostParent)
         end
+
     end
 end
 
 function preMount(element, tree)
-
-    if element.Type == ElementType.Types.Host then
-        local completeInstance = createInstance(element.class, element.props)
-        element.instance = completeInstance
-
-        for _, child in pairs(element.children) do
-            preMount(child, completeInstance)
-        end
-
-        if typeof(tree) == "Instance" then
-            completeInstance.Parent = tree
-        end
-
-        return completeInstance
-    end
 
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
@@ -132,6 +126,7 @@ function preMount(element, tree)
 
         if newElement.isComponent then
             newElement.props = element.props
+            task.spawn(ComponentAspectSignal, newElement, element)
             ComponentAspectSignal(newElement, element)
 
             if newElement.init then
@@ -161,9 +156,23 @@ function preMount(element, tree)
     end
 
     if element.Type == ElementType.Types.Gateway then
-        HandleGateway(element, tree)
+        HandleGateway(element)
     end
 
+    if element.Type == ElementType.Types.Host then
+        local completeInstance = createInstance(element.class, element.props)
+        element.instance = completeInstance
+
+        for _, child in pairs(element.children) do
+            preMount(child, completeInstance)
+        end
+
+        if typeof(tree) == "Instance" then
+            completeInstance.Parent = tree
+        end
+
+        return completeInstance
+    end
 end
 
 function mount(element, tree)
@@ -190,6 +199,18 @@ function deepSearch(trees, tree)
     end
 end
 
+function DeleteInstances(findTree)
+
+    if findTree.instance then
+        findTree.instance:Destroy()
+        findTree.instance = nil
+    else
+        for _, value in pairs(findTree.children) do
+            DeleteInstances(value)
+        end
+    end
+end
+
 function unmount(tree)
     local findTree, parentTree = deepSearch(Trees, tree)
 
@@ -197,8 +218,15 @@ function unmount(tree)
 
     if findTree then
 
+        for _, value in pairs(findTree.children) do
+            unmount(value)
+        end
+
         if findTree.instance then
-            path = findTree.instance.Parent
+            if path == nil then
+                path = findTree.instance.Parent
+            end
+    
             findTree.instance:Destroy()
             findTree.instance = nil
         end
@@ -216,10 +244,16 @@ end
 
 function update(currentTree, newTree)
     local path = unmount(currentTree)
+    print("Path:", path)
     return mount(newTree, path)
 end
 
 --// This is the Finished functions for virtual node
+function finishedMount(element, path)
+    local mounted = mount(element, path)
+    ComponentSignal.didMount:Fire(element)
+    return mounted
+end
 
 function finishedUnmount(element)
     -- // stuff will be added here
@@ -236,7 +270,7 @@ function finishedUpdate(currentTree, element)
     return updated
 end
 
-VirtualNode.mount = mount
+VirtualNode.mount = finishedMount
 VirtualNode.update = finishedUpdate
 VirtualNode.unmount = finishedUnmount
 

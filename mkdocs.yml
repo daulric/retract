@@ -1,4 +1,4 @@
-site_name: ReTract
+site_name: ReTract Documentation
 repo_url: https://github.com/daulric/ReTract
 repo_name: daulric/ReTract
 
@@ -12,6 +12,8 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - admonition
+  - toc:
+      permalink: true
   - pymdownx.superfences:
       custom_fences:
         - name: mermaid
@@ -34,12 +36,9 @@ theme:
     repo: fontawesome/brands/github
 
   palette:
-    primary: default
-    accent: indigo
+    primary: light blue
+    accent: light blue
     scheme: slate
-    toggle:
-        icon: material/brightness-4
-        name: Switch to system preference
 
 
   features:
@@ -47,13 +46,14 @@ theme:
     content.code.select
     content.code.annotate
     content.tooltips
-    navigation.tabs
-    navigation.tracking
+    #navigation.tabs
+    #navigation.tracking
     #navigation.tabs.sticky
 
 nav:
   - Home: index.md
   - Guide:
-    - Element: Guide/Element.md
-    - Signal: Guide/Signal.md 
+    - Installation: Guide/Installation.md
+    - Elements: Guide/Elements.md
+    - Components: Guide/Components.md 
   - Api Reference: api-reference.md

@@ -6,6 +6,7 @@ Signals.willUnmount = Signal.new()
 Signals.willUpdate = Signal.new()
 Signals.didUpdate = Signal.new()
 Signals.didUnmount = Signal.new()
+Signals.didMount = Signal.new()
 
 freeze(Signals)
 return Signals
