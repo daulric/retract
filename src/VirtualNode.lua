@@ -244,7 +244,6 @@ end
 
 function update(currentTree, newTree)
     local path = unmount(currentTree)
-    print("Path:", path)
     return mount(newTree, path)
 end
 
