@@ -53,7 +53,10 @@ theme:
 nav:
   - Home: index.md
   - Guide:
-    - Installation: Guide/Installation.md
-    - Elements: Guide/Elements.md
-    - Components: Guide/Components.md 
+    - Installation: guide/installation.md
+    - Elements: guide/elements.md
+    - Components: guide/components.md 
+  - Advanced Concepts:
+    - Gateway: advanced-concepts/gateway.md
+    - Fragments: advanced-concepts/fragments.md
   - Api Reference: api-reference.md
