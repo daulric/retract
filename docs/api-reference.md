@@ -76,11 +76,6 @@ ReTract.createElement(ReTract.Gateway, {
 
 This creates a gateway that ports instance to the path and the mounted path when `.mount` is called
 
-!!! warning
-
-    This feature is still in development. This may not be fully functional at this time but it will be at some point.
-
-
 ## Constants
 ### ReTract.Children
 

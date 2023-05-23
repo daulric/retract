@@ -1,6 +1,7 @@
 local VirtualNode = {}
 
 local Trees = {}
+local Instances = {}
 
 local system = script.Parent:WaitForChild("system")
 local markers = script.Parent:WaitForChild("markers")
@@ -118,7 +119,10 @@ function preMount(element, tree)
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
-        element.instance = preMount(newElement, tree)
+        if newElement.Type == ElementType.Types.Fragment then
+            element.components = newElement.components
+        end
+        element.instances = preMount(newElement, tree)
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
@@ -137,6 +141,9 @@ function preMount(element, tree)
             if newElement.render then
                 local elements = newElement:render()
                 assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
+                if elements.Type == ElementType.Types.Fragment then
+                    element.components = elements.components
+                end
                 element.instance = preMount(elements, tree)
             end
 
@@ -152,7 +159,7 @@ function preMount(element, tree)
         else
             ManageFragment(element, tree)
         end
-        
+
     end
 
     if element.Type == ElementType.Types.Gateway then
@@ -217,6 +224,14 @@ function unmount(tree)
     local path
 
     if findTree then
+        if findTree.components then
+            for _, value in pairs(findTree.components) do
+                if value.instance then
+                    value.instance:Destroy()
+                    value.instance = nil
+                end
+            end
+        end
 
         for _, value in pairs(findTree.children) do
             unmount(value)
