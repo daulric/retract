@@ -5,7 +5,7 @@ local markers = script:WaitForChild("markers")
 
 local data = require(markers:WaitForChild("data"))
 
-local VirtualNode = require(script:WaitForChild("VirtualNode"))
+local Reconciler = require(script:WaitForChild("Reconciler"))
 local createElement = require(nodes:WaitForChild("createElement"))
 local createFragment = require(nodes:WaitForChild("createFragment"))
 local ComponentAspect = require(script:WaitForChild("Component"))
@@ -16,9 +16,9 @@ local Signal = require(system:WaitForChild("Signal"))
 local freeze = require(script:WaitForChild("freeze"))
 
 local ReTract = {
-    mount = VirtualNode.mount,
-    unmount = VirtualNode.unmount,
-    update = VirtualNode.update,
+    mount = Reconciler.mount,
+    unmount = Reconciler.unmount,
+    update = Reconciler.update,
 
     createElement = createElement,
     createFragment = createFragment,

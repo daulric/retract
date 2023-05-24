@@ -1,26 +1,16 @@
-local VirtualNode = {}
+local reconciler = {}
 
 local Trees = {}
-local Instances = {}
 
 local system = script.Parent:WaitForChild("system")
 local markers = script.Parent:WaitForChild("markers")
 local Type = require(markers.Type)
 local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
-local Gateway = require(markers.Gateway)
 
 local ComponentSignal = require(system.ComponentSignal)
 
-function createInstance(name, props)
-    local element
-
-    local success, err = pcall(function()
-        element = Instance.new(name)
-    end)
-
-    assert(success, err)
-
+function applyProps(element, props)
     for index, property in pairs(props) do
 
         -- This is for getting the children in the Component
@@ -47,8 +37,6 @@ function createInstance(name, props)
         end
 
     end
-
-    return element
 end
 
 function ManageFragment(fragment, tree)
@@ -131,7 +119,6 @@ function preMount(element, tree)
         if newElement.isComponent then
             newElement.props = element.props
             task.spawn(ComponentAspectSignal, newElement, element)
-            ComponentAspectSignal(newElement, element)
 
             if newElement.init then
                 local success, err = pcall(newElement.init, newElement)
@@ -141,9 +128,11 @@ function preMount(element, tree)
             if newElement.render then
                 local elements = newElement:render()
                 assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
+                
                 if elements.Type == ElementType.Types.Fragment then
                     element.components = elements.components
                 end
+
                 element.instance = preMount(elements, tree)
             end
 
@@ -167,8 +156,10 @@ function preMount(element, tree)
     end
 
     if element.Type == ElementType.Types.Host then
-        local completeInstance = createInstance(element.class, element.props)
+        local completeInstance = Instance.new(element.class)
         element.instance = completeInstance
+
+        applyProps(completeInstance, element.props)
 
         for _, child in pairs(element.children) do
             preMount(child, completeInstance)
@@ -283,8 +274,8 @@ function finishedUpdate(currentTree, element)
     return updated
 end
 
-VirtualNode.mount = finishedMount
-VirtualNode.update = finishedUpdate
-VirtualNode.unmount = finishedUnmount
+reconciler.mount = finishedMount
+reconciler.update = finishedUpdate
+reconciler.unmount = finishedUnmount
 
-return VirtualNode
+return reconciler
