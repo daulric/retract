@@ -14,7 +14,7 @@
         "$path": "Plugin"
       },
       "testez": {
-        "$path": "testez/src"
+        "$path": "modules/testez/src"
       },
       "tests": {
         "$path": "tests"
