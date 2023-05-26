@@ -1,40 +1,40 @@
 {
-    "name": "ReTract",
-    "tree": {
-        "$className": "DataModel",
-        "ReplicatedStorage": {
-            "$className": "ReplicatedStorage",
-            "$path": "Service/Shared",
-            "$ignoreUnknownInstances": true,
-
-            "ReTract": {
-                "$path": "src"
-            },
-
-            "ReTractPlugin": {
-                "$path": "Plugin",
-                "ReTract": {
-                    "$path": "src"
-                }
-            }
+  "name": "ReTract",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "ReTract": {
+        "$path": "src"
+      },
+      "ReTractPlugin": {
+        "ReTract": {
+          "$path": "src"
         },
-
-        "ServerScriptService": {
-            "$className": "ServerScriptService",
-            "$ignoreUnknownInstances": true,
-            "$path": "Service/Server"
-        },
-
-        "StarterPlayer": {
-            "$className": "StarterPlayer",
-
-            "StarterPlayerScripts": {
-                "$ignoreUnknownInstances": true,
-                "$path": "Service/Client",
-                "$className": "StarterPlayerScripts"
-            }
-        },
-
-        "$ignoreUnknownInstances": true
-    }
+        "$path": "Plugin"
+      },
+      "testez": {
+        "$path": "testez/src"
+      },
+      "tests": {
+        "$path": "tests"
+      },
+      "$ignoreUnknownInstances": true,
+      "$path": "Service/Shared"
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$ignoreUnknownInstances": true,
+      "$path": "Service/Server"
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$ignoreUnknownInstances": true,
+        "$path": "Service/Client"
+      }
+    },
+    "$ignoreUnknownInstances": true
+  }
 }
