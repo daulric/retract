@@ -15,7 +15,7 @@ local Signal = require(system:WaitForChild("Signal"))
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
-local ReTract = {
+local Retract = {
     mount = Reconciler.mount,
     unmount = Reconciler.unmount,
     update = Reconciler.update,
@@ -38,5 +38,5 @@ local ReTract = {
     createSignal = Signal.new,
 }
 
-freeze(ReTract)
-return ReTract
+freeze(Retract)
+return Retract
