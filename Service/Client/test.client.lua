@@ -37,6 +37,16 @@ function getTime(props)
     })
 end
 
+function handleGateway(props)
+	return Uact.createElement(Uact.Gateway, {
+		path = game.Workspace
+	}, {
+		Uact.createElement("Part", {
+			Name = props.Name
+		})
+	})
+end
+
 local test = Uact.createElement("ScreenGui", {
     Name = "Ulric"
 }, {

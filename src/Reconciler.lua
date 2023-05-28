@@ -107,10 +107,13 @@ function preMount(element, tree)
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
+
+        preMount(newElement, tree)
+        
         if newElement.Type == ElementType.Types.Fragment then
             element.components = newElement.components
         end
-        element.instances = preMount(newElement, tree)
+
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
@@ -129,11 +132,12 @@ function preMount(element, tree)
                 local elements = newElement:render()
                 assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
                 
+                element.instance = preMount(elements, tree)
+
                 if elements.Type == ElementType.Types.Fragment then
                     element.components = elements.components
                 end
 
-                element.instance = preMount(elements, tree)
             end
 
         end
