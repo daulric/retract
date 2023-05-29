@@ -45,44 +45,44 @@ function ManageFragment(fragment, tree)
     end
 end
 
-function ComponentAspectSignal(newElement, element)
+function ComponentAspectSignal(component, element)
 
-    if newElement.willUnmount then
+    if component.willUnmount then
         ComponentSignal.willUnmount:Connect(function(tree)
             if tree == element then
-                newElement:willUnmount()
+                component:willUnmount()
             end
         end)
     end
 
-    if newElement.willUpdate then
+    if component.willUpdate then
         ComponentSignal.willUpdate:Connect(function(tree)
             if tree == element then
-                newElement:willUpdate()
+                component:willUpdate()
             end
         end)
     end
     
-    if newElement.didUnmount then
+    if component.didUnmount then
         ComponentSignal.didUnmount:Connect(function(tree)
             if tree == element then
-                newElement:didUnmount()
+                component:didUnmount()
             end
         end)
     end
 
-    if newElement.didUpdate then
+    if component.didUpdate then
         ComponentSignal.didUpdate:Connect(function(tree)
             if tree == element then
-                newElement:didUpdate()
+                component:didUpdate()
             end
         end)
     end
 
-    if newElement.didMount then
+    if component.didMount then
         ComponentSignal.didMount:Connect(function(tree)
             if tree == element then
-                newElement:didMount()
+                component:didMount()
             end
         end)
     end
@@ -127,22 +127,22 @@ function preMount(element, tree)
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
-        local newElement = element.class
+        local component = element.class
 
-        if newElement.isComponent then
-            newElement.props = element.props
-            task.spawn(ComponentAspectSignal, newElement, element)
+        if component.isComponent then
+            component.props = element.props
+            task.spawn(ComponentAspectSignal, component, element)
 
-            if newElement.init then
-                local success, err = pcall(newElement.init, newElement)
+            if component.init then
+                local success, err = pcall(component.init, component)
                 assert(success, err)
             end
 
-            if newElement.render then
-                local elements = newElement:render()
-                assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
+            if component.render then
+                local newElement = component:render()
+                assert(newElement ~= nil, `there is nothing to render; {debug.traceback()}`)
 
-                ManageFunctionalAndStateful(element, elements, tree)
+                ManageFunctionalAndStateful(element, newElement, tree)
             end
 
         end
