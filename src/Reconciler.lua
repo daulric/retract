@@ -96,10 +96,26 @@ function HandleGateway(element)
     if typeof(hostParent) == "Instance" then
 
         for _, node in pairs(children) do
-            preMount(node, hostParent)
+            local instance = preMount(node, hostParent)
+            node.instance = instance
         end
 
     end
+end
+
+function ManageFunctionalAndStateful(element, newElement, tree)
+
+    if newElement.Type == ElementType.Types.Gateway then
+        element.gatewayInstances = newElement.children
+    end
+
+    if newElement.Type == ElementType.Types.Fragment then
+        element.components = newElement.components
+    end
+
+    local instance = preMount(newElement, tree)
+    element.instance = instance
+
 end
 
 function preMount(element, tree)
@@ -107,13 +123,7 @@ function preMount(element, tree)
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
-
-        preMount(newElement, tree)
-        
-        if newElement.Type == ElementType.Types.Fragment then
-            element.components = newElement.components
-        end
-
+        ManageFunctionalAndStateful(element, newElement, tree)
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
@@ -131,13 +141,8 @@ function preMount(element, tree)
             if newElement.render then
                 local elements = newElement:render()
                 assert(elements ~= nil, `there is nothing to render; {debug.traceback()}`)
-                
-                element.instance = preMount(elements, tree)
 
-                if elements.Type == ElementType.Types.Fragment then
-                    element.components = elements.components
-                end
-
+                ManageFunctionalAndStateful(element, elements, tree)
             end
 
         end
@@ -203,12 +208,18 @@ function deepSearch(trees, tree)
 end
 
 function DeleteInstances(findTree)
+    for index, value in pairs(findTree) do
+        if index == "Parent" then continue end
 
-    if findTree.instance then
-        findTree.instance:Destroy()
-        findTree.instance = nil
-    else
-        for _, value in pairs(findTree.children) do
+        if typeof(value) == "Instance" then
+            if value.Parent ~= nil then
+                pcall(function()
+                    value:Destroy()
+                    findTree[index] = nil
+                    print(`deleting {value.Name}...`)
+                end)
+            end
+        elseif typeof(value) == "table" then
             DeleteInstances(value)
         end
     end
@@ -221,23 +232,10 @@ function unmount(tree)
 
     if findTree then
         path = findTree.Parent
-
-        if findTree.components then
-            for _, value in pairs(findTree.components) do
-                if value.instance then
-                    value.instance:Destroy()
-                    value.instance = nil
-                end
-            end
-        end
+        DeleteInstances(findTree)
 
         for _, value in pairs(findTree.children) do
             unmount(value)
-        end
-
-        if findTree.instance then    
-            findTree.instance:Destroy()
-            findTree.instance = nil
         end
 
         local removed = table.find(parentTree, findTree)
