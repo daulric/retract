@@ -234,10 +234,6 @@ function unmount(tree)
         path = findTree.Parent
         DeleteInstances(findTree)
 
-        for _, value in pairs(findTree.children) do
-            unmount(value)
-        end
-
         local removed = table.find(parentTree, findTree)
 
         if removed then
