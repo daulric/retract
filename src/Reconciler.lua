@@ -105,6 +105,8 @@ end
 
 function ManageFunctionalAndStateful(element, newElement, tree)
 
+    element.StatefulandFunctalStufff = newElement
+
     if newElement.Type == ElementType.Types.Gateway then
         element.gatewayInstances = newElement.children
     end
@@ -212,13 +214,11 @@ function DeleteInstances(findTree)
         if index == "Parent" then continue end
 
         if typeof(value) == "Instance" then
-            if value.Parent ~= nil then
-                pcall(function()
+            pcall(function()
+                if value.Parent ~= nil then
                     value:Destroy()
-                    findTree[index] = nil
-                    print(`deleting {value.Name}...`)
-                end)
-            end
+                end
+            end)
         elseif typeof(value) == "table" then
             DeleteInstances(value)
         end

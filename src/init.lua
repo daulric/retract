@@ -38,5 +38,5 @@ local Retract = {
     createSignal = Signal.new,
 }
 
-freeze(Retract)
+freeze(Retract, "Retract")
 return Retract

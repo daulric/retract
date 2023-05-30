@@ -1,6 +1,8 @@
 local Component = {}
 Component.__index = Component
 
+local ElementType = require(script.Parent:WaitForChild("markers").ElementType)
+
 function Component:setState(value: any)
 
 	assert(table.isfrozen(self.state) or self.state.isState == true, `This is an invalid state. Please configure your state; Table ID: {tostring(self.state)}`)
@@ -32,14 +34,12 @@ function Component:extend(name)
 	-- this here runs the component once
 	local class = {}
 
-	if name ~= nil then
-		class.name = ""..name
-	end
+	assert(name ~= nil, "you need a name for this component"..debug.traceback(2))
 
-	class.name = name
+	class._name = name
 	class.state = {isState = true}
 	table.freeze(class.state)
-	class.isComponent = true
+	class.Type = ElementType.Types.StatefulComponent
 
 	setmetatable(class, Component)
 	return class

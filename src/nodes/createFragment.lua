@@ -5,7 +5,6 @@ function createFragment(index)
     return {
         Type = ElementType.Types.Fragment,
         components = index,
-        isFragment = true
     }
 end
 

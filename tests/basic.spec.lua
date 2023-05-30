@@ -12,6 +12,7 @@ return function ()
 
     it("should mount the element", function()
         handle = ReTract.mount(element, player.PlayerGui)
+        task.wait()
         expect(handle).to.be.ok()
     end)
 
@@ -19,7 +20,7 @@ return function ()
         oldHandle = handle
         handle = ReTract.update(handle, ReTract.createElement("Part", {Name = "IDK"}))
         expect(handle).to.never.equal(oldHandle)
-        expect(handle)
+        expect(handle).to.be.ok()
     end)
 
     it("should unmount element", function()

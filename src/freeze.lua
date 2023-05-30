@@ -1,4 +1,7 @@
-return function(data: {[any]: any})
+return function(data: {[any]: any}, name)
+
+	name = name or tostring(data)
+
     local success, completed = pcall(function()
 		local Name = tostring(data)
 
@@ -14,6 +17,10 @@ return function(data: {[any]: any})
 
 				error(message, 2)
 			end,
+
+			__tostring = function()
+				return name
+			end
 		})
 	end)
 

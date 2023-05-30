@@ -6,13 +6,14 @@ local Symbol = require(script.Parent.Symbol)
 local Gateway = require(script.Parent:WaitForChild("Gateway"))
 
 local ElementKindType = {
-    Host = Symbol.assign("ReTract.Element.Host"),
-    Functional = Symbol.assign("ReTract.Element.Function"),
-    StatefulComponent = Symbol.assign("ReTract.Element.StatefulComponent"),
+    Host = Symbol.assign("Retract.Element.Host"),
+    Functional = Symbol.assign("Retract.Element.Function"),
+    StatefulComponent = Symbol.assign("Retract.Element.StatefulComponent"),
 
     --// Other Stuff
-    Fragment = Symbol.assign("ReTract.Fragment"),
-    Gateway = Symbol.assign("ReTract.Gateway")
+    Fragment = Symbol.assign("Retract.Fragment"),
+    Gateway = Symbol.assign("Retract.Gateway"),
+    Context = Symbol.assign("Retract.Context")
 }
 
 ElementTypeInternal.Types = ElementKindType
@@ -34,11 +35,11 @@ function ElementTypeInternal.typeof(element)
     end
 
     if typeof(element) == "table" then
-        if element.isComponent then
+        if element.Type == ElementKindType.StatefulComponent then
             return ElementKindType.StatefulComponent
         end
 
-        if element.isFragment then
+        if element.Type == ElementKindType.Fragment then
             return ElementKindType.Fragment
         end
     end
