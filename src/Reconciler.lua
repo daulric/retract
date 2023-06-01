@@ -1,42 +1,34 @@
 local reconciler = {}
 
-local Trees = {}
-
 local system = script.Parent:WaitForChild("system")
 local markers = script.Parent:WaitForChild("markers")
 local Type = require(markers.Type)
 local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
+local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
 
 local ComponentSignal = require(system.ComponentSignal)
 
-function applyProps(element, props)
-    for index, property in pairs(props) do
+function applyProps(element, instance)
+    local connections = {}
 
+    for index, property in pairs(element.props) do
         -- This is for getting the children in the Component
         if index == Children then
             continue
         end
-
-        if index.Type == Type.Change then
-            element:GetPropertyChangedSignal(index.name):Connect(function(...)
-                property(element, ...)
-            end)
-        elseif index.Type == Type.AttributeChange then
-            element:GetAttributeChangedSignal(index.name):Connect(function(...)
-                property(element, ...)
-            end)
-        elseif index.Type == Type.Event then
-            element[index.name]:Connect(function(...)
-                property(element, ...)
-            end)
+    
+        if index.Event then
+            local connection = SingleEventManager:connect(instance, index, property)
+            table.insert(connections, connection)
         elseif index.Type == Type.Attribute then
-            element:SetAttribute(index.name, property)
+            instance:SetAttribute(index.name, property)
         else
-            element[index] = property
+            instance[index] = property
         end
-
     end
+
+    element.connections = connections
 end
 
 function ManageFragment(fragment, tree)
@@ -105,19 +97,10 @@ end
 
 function ManageFunctionalAndStateful(element, newElement, tree)
 
-    element.StatefulandFunctalStufff = newElement
-
-    if newElement.Type == ElementType.Types.Gateway then
-        element.gatewayInstances = newElement.children
-    end
-
-    if newElement.Type == ElementType.Types.Fragment then
-        element.components = newElement.components
-    end
+    element.rootNode = newElement
 
     local instance = preMount(newElement, tree)
     element.instance = instance
-
 end
 
 function preMount(element, tree)
@@ -131,7 +114,7 @@ function preMount(element, tree)
     if element.Type == ElementType.Types.StatefulComponent then
         local component = element.class
 
-        if component.isComponent then
+        if component.Type == ElementType.Types.StatefulComponent then
             component.props = element.props
             task.spawn(ComponentAspectSignal, component, element)
 
@@ -170,7 +153,7 @@ function preMount(element, tree)
         local completeInstance = Instance.new(element.class)
         element.instance = completeInstance
 
-        applyProps(completeInstance, element.props)
+        applyProps(element, completeInstance)
 
         for _, child in pairs(element.children) do
             preMount(child, completeInstance)
@@ -178,6 +161,7 @@ function preMount(element, tree)
 
         if typeof(tree) == "Instance" then
             completeInstance.Parent = tree
+            element.Parent = tree
         end
 
         return completeInstance
@@ -189,60 +173,48 @@ function mount(element, tree)
     if type(element) == "table" then
         preMount(element, tree)
         element.Parent = tree
-        task.wait()
-        table.insert(Trees, element)
         return element
     end
 
 end
 
-function deepSearch(trees, tree)
+function unmount(element)
 
-    for index, value in pairs(trees) do
-        if type(value) == "table" then
-            if value == tree then
-                return value, trees
-            else
-                return deepSearch(value, tree)
+    local path = element.Parent
+
+    if element.Type == ElementType.Types.Functional or element.Type == ElementType.Types.StatefulComponent then
+        unmount(element.rootNode)
+    elseif element.Type == ElementType.Types.Gateway then
+        for _, nodes in pairs(element.children) do
+            unmount(nodes)
+        end
+    elseif element.Type == ElementType.Types.Fragment then
+        for _, nodes in pairs(element.components) do
+            unmount(nodes)
+        end
+    elseif element.Type == ElementType.Types.Host then
+        if element.instance and typeof(element.instance) == "Instance" then
+
+            for _, connection in pairs(element.connections) do
+                if typeof(connection) == "RBXScriptConnection" then
+                    connection:Disconnect()
+                end
+            end
+
+            if element.instance.Parent ~= nil then
+                element.instance:Destroy()
+                element.instance = nil
             end
         end
-    end
-end
-
-function DeleteInstances(findTree)
-    for index, value in pairs(findTree) do
-        if index == "Parent" then continue end
-
-        if typeof(value) == "Instance" then
-            pcall(function()
-                if value.Parent ~= nil then
-                    value:Destroy()
-                end
-            end)
-        elseif typeof(value) == "table" then
-            DeleteInstances(value)
-        end
-    end
-end
-
-function unmount(tree)
-    local findTree, parentTree = deepSearch(Trees, tree)
-
-    local path
-
-    if findTree then
-        path = findTree.Parent
-        DeleteInstances(findTree)
-
-        local removed = table.find(parentTree, findTree)
-
-        if removed then
-            table.remove(parentTree, removed)
+    
+        for _, nodes in pairs(element.children) do
+            unmount(nodes)
         end
 
     end
 
-    return path, parentTree
+
+    return path
 end
 
 function update(currentTree, newTree)

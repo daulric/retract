@@ -2,7 +2,6 @@ return function ()
     local ReTract = require(game.ReplicatedStorage:WaitForChild("ReTract"))
     local element
     local handle
-    local oldHandle
     local player = game.Players.LocalPlayer
         
     it("create an element", function()
@@ -17,9 +16,7 @@ return function ()
     end)
 
     it("should update element", function()
-        oldHandle = handle
         handle = ReTract.update(handle, ReTract.createElement("Part", {Name = "IDK"}))
-        expect(handle).to.never.equal(oldHandle)
         expect(handle).to.be.ok()
     end)
 

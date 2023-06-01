@@ -1,5 +1,8 @@
 local ElementTypeInternal = {}
-local ElementType = newproxy(true)
+
+type ElementKindType = typeof(ElementTypeInternal)
+
+local ElementType: ElementKindType = newproxy(true)
 
 local Symbol = require(script.Parent.Symbol)
 
@@ -13,7 +16,6 @@ local ElementKindType = {
     --// Other Stuff
     Fragment = Symbol.assign("Retract.Fragment"),
     Gateway = Symbol.assign("Retract.Gateway"),
-    Context = Symbol.assign("Retract.Context")
 }
 
 ElementTypeInternal.Types = ElementKindType
