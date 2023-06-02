@@ -25,7 +25,6 @@ function Component:setState(value: any)
 		end
 	end
 
-	NewClassState.isState = true
 	self.state = NewClassState
 	table.freeze(self.state)
 end

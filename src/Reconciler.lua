@@ -50,7 +50,7 @@ function ComponentAspectSignal(component, element)
     if component.willUpdate then
         ComponentSignal.willUpdate:Connect(function(tree)
             if tree == element then
-                component:willUpdate()
+                component:willUpdate(tree.props)
             end
         end)
     end
@@ -66,7 +66,7 @@ function ComponentAspectSignal(component, element)
     if component.didUpdate then
         ComponentSignal.didUpdate:Connect(function(tree)
             if tree == element then
-                component:didUpdate()
+                component:didUpdate(tree.props)
             end
         end)
     end
