@@ -10,12 +10,12 @@ return function ()
     local handler
 
     it("should mount an extended component", function()
-        handler = ReTract.mount(handle, player.PlayerGui)
+        handler = component:__mount(handle, player.PlayerGui)
         expect(handler).to.be.ok()
     end)
 
     it("unmount component", function()
-        expect(ReTract.unmount(handler)).to.never.be.ok()
+        expect(component:__unmount()).to.never.be.ok()
     end)
 
 end

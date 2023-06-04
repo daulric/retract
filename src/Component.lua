@@ -2,6 +2,13 @@ local Component = {}
 Component.__index = Component
 
 local ElementType = require(script.Parent:WaitForChild("markers").ElementType)
+local markers = script.Parent:WaitForChild("markers")
+
+local Children = require(markers.Children)
+
+local Reconciler = require(script.Parent:WaitForChild("Reconciler"))
+local system = script.Parent:WaitForChild("system")
+local Signal = require(system:WaitForChild("Signal"))
 
 function Component:setState(value: any)
 
@@ -29,19 +36,121 @@ function Component:setState(value: any)
 	table.freeze(self.state)
 end
 
+function Component:render()
+	error(`This is no render; This is just a dummy render just to warn that there is nothing to render {self._name}`)
+end
+
+function createSignal(class, Type)
+	class.Signals[Type] = Signal.new()
+end
+
 function Component:extend(name)
 	-- this here runs the component once
 	local class = {}
+	class.Signals = {}
 
 	assert(name ~= nil, "you need a name for this component"..debug.traceback(2))
 
-	class._name = name
+	class._name = name or tostring(self)
 	class.state = {isState = true}
 	table.freeze(class.state)
+
+	createSignal(class, "didMount")
+	createSignal(class, "willUpdate")
+	createSignal(class, "didUpdate")
+	createSignal(class, "willUnmount")
+	createSignal(class, "didUnmount")
 	class.Type = ElementType.Types.StatefulComponent
 
 	setmetatable(class, Component)
 	return class
+end
+
+function ComponentAspectSignal(component)
+
+	local Signals = component.Signals
+
+    if component.willUnmount then
+        Signals.willUnmount:Connect(function()
+            component:willUnmount()
+        end)
+    end
+
+    if component.willUpdate then
+        Signals.willUpdate:Connect(function()
+            component:willUpdate(component.props)
+        end)
+    end
+    
+    if component.didUnmount then
+        Signals.didUnmount:Connect(function()
+            component:didUnmount()
+        end)
+    end
+
+    if component.didUpdate then
+        Signals.didUpdate:Connect(function(tree)
+            component:didUpdate(tree.props)
+        end)
+    end
+
+    if component.didMount then
+        Signals.didMount:Connect(function(tree)
+            component:didMount()
+        end)
+    end
+
+end
+
+function SendSignal(class, Type, ...)
+	class.Signals[Type]:Fire(...)
+end
+
+function Component:__mount(element, hostParent)
+	self.props = element.props
+
+	task.spawn(ComponentAspectSignal, self)
+
+	if self.init then
+	    local success, err = pcall(self.init, self)
+	    assert(success, err)
+	end
+
+	if self.render then
+	    local newElement = self:render()
+		self.rootNode = newElement
+		self.rootNode.Parent = hostParent
+		element.instance = Reconciler.premount(newElement, hostParent)
+		SendSignal(self, "didMount")
+	end
+
+	return element
+end
+
+function Component:__unmountNode()
+	Reconciler.unmountSecond(self.rootNode)
+end
+
+function Component:__unmount()
+	SendSignal(self, "willUnmount")
+	self:__unmountNode()
+	SendSignal(self, "didUnmount")
+end
+
+function Component:__update(element, newProps)
+	SendSignal(self, "willUpdate")
+
+	self:__unmountNode()
+
+	for i, v in pairs(newProps) do
+		self.props[i] = v
+	end
+
+	local newRender = self:render()
+	self.rootNode = newRender
+
+	element.instance = Reconciler.premount(newRender, self.Parent)
+	SendSignal(self, "didUpdate")
 end
 
 return Component

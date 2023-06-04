@@ -31,54 +31,60 @@ function applyProps(element, instance)
     element.connections = connections
 end
 
+function DeleteConnection(element)
+    if element.Type == ElementType.Types.Host then
+        for _, connection in pairs(element.connections) do
+            if typeof(connection) == "RBXScriptConnection" then
+                connection:Disconnect()
+            end
+        end
+    end
+end
+
+function updateGatewayProps(element, newProps)
+    element.props.path = newProps.path
+end
+
+function updateFunctionalProps(element, newProps)
+
+    for i, v in pairs(newProps) do
+        if i ~= Children then
+            element.props[i] = v
+        end
+    end
+
+    local newElement = element.class(element.props)
+    element.rootNode = newElement
+end
+
+function updateHostProps(element, newProps)
+    DeleteConnection(element)
+
+    for i, v in pairs(newProps) do
+            if i ~=  Children then
+                element.props[i] = v
+            end
+    end
+
+    applyProps(element, element.instance)
+end
+
+function updateProps(element, newProps)
+    if element.Type == ElementType.Types.Host then
+        updateHostProps(element, newProps)
+    elseif element.Type == ElementType.Types.Functional then
+        updateFunctionalProps(element, newProps)
+    elseif element.Type == ElementType.Types.Host then
+        updateGatewayProps(element, newProps)
+    elseif element.Type == ElementType.Types.StatefulComponent then
+        element.class:__update(element, newProps)
+    end
+end
+
 function ManageFragment(fragment, tree)
     for index, node in pairs(fragment.components) do
         preMount(node, tree)
     end
-end
-
-function ComponentAspectSignal(component, element)
-
-    if component.willUnmount then
-        ComponentSignal.willUnmount:Connect(function(tree)
-            if tree == element then
-                component:willUnmount()
-            end
-        end)
-    end
-
-    if component.willUpdate then
-        ComponentSignal.willUpdate:Connect(function(tree)
-            if tree == element then
-                component:willUpdate(tree.props)
-            end
-        end)
-    end
-    
-    if component.didUnmount then
-        ComponentSignal.didUnmount:Connect(function(tree)
-            if tree == element then
-                component:didUnmount()
-            end
-        end)
-    end
-
-    if component.didUpdate then
-        ComponentSignal.didUpdate:Connect(function(tree)
-            if tree == element then
-                component:didUpdate(tree.props)
-            end
-        end)
-    end
-
-    if component.didMount then
-        ComponentSignal.didMount:Connect(function(tree)
-            if tree == element then
-                component:didMount()
-            end
-        end)
-    end
-
 end
 
 function HandleGateway(element)
@@ -95,7 +101,7 @@ function HandleGateway(element)
     end
 end
 
-function ManageFunctionalAndStateful(element, newElement, tree)
+function ManageFunctional(element, newElement, tree)
 
     element.rootNode = newElement
 
@@ -108,30 +114,12 @@ function preMount(element, tree)
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
-        ManageFunctionalAndStateful(element, newElement, tree)
+        ManageFunctional(element, newElement, tree)
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
         local component = element.class
-
-        if component.Type == ElementType.Types.StatefulComponent then
-            component.props = element.props
-            task.spawn(ComponentAspectSignal, component, element)
-
-            if component.init then
-                local success, err = pcall(component.init, component)
-                assert(success, err)
-            end
-
-            if component.render then
-                local newElement = component:render()
-                assert(newElement ~= nil, `there is nothing to render; {debug.traceback()}`)
-
-                ManageFunctionalAndStateful(element, newElement, tree)
-            end
-
-        end
-
+        component:__mount(element, tree)
     end
 
     if element.Type == ElementType.Types.Fragment then
@@ -155,15 +143,15 @@ function preMount(element, tree)
 
         applyProps(element, completeInstance)
 
-        for _, child in pairs(element.children) do
+        for _, child in pairs(element.props[Children]) do
             preMount(child, completeInstance)
         end
 
         if typeof(tree) == "Instance" then
             completeInstance.Parent = tree
-            element.Parent = tree
         end
 
+        element.Parent = tree
         return completeInstance
     end
 end
@@ -182,10 +170,12 @@ function unmount(element)
 
     local path = element.Parent
 
-    if element.Type == ElementType.Types.Functional or element.Type == ElementType.Types.StatefulComponent then
+    if element.Type == ElementType.Types.StatefulComponent then
+        element.class:__unmount()
+    elseif element.Type == ElementType.Types.Functional then
         unmount(element.rootNode)
     elseif element.Type == ElementType.Types.Gateway then
-        for _, nodes in pairs(element.children) do
+        for _, nodes in pairs(element.props[Children]) do
             unmount(nodes)
         end
     elseif element.Type == ElementType.Types.Fragment then
@@ -195,11 +185,7 @@ function unmount(element)
     elseif element.Type == ElementType.Types.Host then
         if element.instance and typeof(element.instance) == "Instance" then
 
-            for _, connection in pairs(element.connections) do
-                if typeof(connection) == "RBXScriptConnection" then
-                    connection:Disconnect()
-                end
-            end
+            DeleteConnection(element)
 
             if element.instance.Parent ~= nil then
                 element.instance:Destroy()
@@ -207,45 +193,56 @@ function unmount(element)
             end
         end
     
-        for _, nodes in pairs(element.children) do
+        for _, nodes in pairs(element.props[Children]) do
             unmount(nodes)
         end
 
     end
 
-
     return path
 end
 
+function unmountwhileUpdating(element)
+    if element.Type == ElementType.Types.StatefulComponent then
+        element.class:__unmountNode()
+    elseif element.Type == ElementType.Types.Functional then
+        unmountwhileUpdating(element.rootNode)
+    elseif element.Type == ElementType.Types.Gateway then
+        for _, nodes in pairs(element.props[Children]) do
+            unmountwhileUpdating(nodes)
+        end
+    elseif element.Type == ElementType.Types.Fragment then
+        for _, nodes in pairs(element.components) do
+            unmountwhileUpdating(nodes)
+        end
+    elseif element.Type == ElementType.Types.Host then
+        if element.instance and typeof(element.instance) == "Instance" then
+
+            DeleteConnection(element)
+
+            if element.instance.Parent ~= nil then
+                element.instance:Destroy()
+                element.instance = nil
+            end
+        end
+
+        for _, nodes in pairs(element.props[Children]) do
+            unmountwhileUpdating(nodes)
+        end
+
+    end
+end
+
 function update(currentTree, newTree)
-    local path = unmount(currentTree)
-    return mount(newTree, path)
+    unmountwhileUpdating(currentTree)
+    updateProps(currentTree, newTree.props)
+    return mount(currentTree, currentTree.Parent)
 end
 
---// This is the Finished functions for virtual node
-function finishedMount(element, path)
-    local mounted = mount(element, path)
-    ComponentSignal.didMount:Fire(element)
-    return mounted
-end
-
-function finishedUnmount(element)
-    -- // stuff will be added here
-    ComponentSignal.willUnmount:Fire(element)
-    unmount(element)
-    ComponentSignal.didUnmount:Fire(element)
-end
-
-function finishedUpdate(currentTree, element)
-    --// Stuff will be added here
-    ComponentSignal.willUpdate:Fire(currentTree)
-    local updated = update(currentTree, element)
-    ComponentSignal.didUpdate:Fire(updated)
-    return updated
-end
-
-reconciler.mount = finishedMount
-reconciler.update = finishedUpdate
-reconciler.unmount = finishedUnmount
+reconciler.mount = mount
+reconciler.update = update
+reconciler.unmount = unmount
+reconciler.unmountSecond = unmountwhileUpdating
+reconciler.premount = preMount
 
 return reconciler
