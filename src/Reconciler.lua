@@ -42,7 +42,7 @@ function DeleteConnection(element)
 end
 
 function updateGatewayProps(element, newProps)
-    element.props.path = newProps.path
+    element.props.path = newProps.props.path
 
     for i, v in pairs(element.props[Children]) do
         updateDummyProps(v)
@@ -52,7 +52,7 @@ end
 
 function updateFunctionalProps(element, newProps)
 
-    for i, v in pairs(newProps) do
+    for i, v in pairs(newProps.props) do
         if i ~= Children then
             element.props[i] = v
         end
@@ -70,7 +70,7 @@ end
 function updateHostProps(element, newProps)
     DeleteConnection(element)
 
-    for i, v in pairs(newProps) do
+    for i, v in pairs(newProps.props) do
         if i ~=  Children then
             element.props[i] = v
         end
@@ -83,6 +83,12 @@ function updateHostProps(element, newProps)
     applyProps(element, element.instance)
 end
 
+function updateFragments(element, newProps)
+    if element.components then
+        element.components = newProps.components
+    end
+end
+
 function updateDummyProps(element)
     updateProps(element, {})
 end
@@ -92,10 +98,16 @@ function updateProps(element, newProps)
         updateHostProps(element, newProps)
     elseif element.Type == ElementType.Types.Functional then
         updateFunctionalProps(element, newProps)
-    elseif element.Type == ElementType.Types.Host then
+    elseif element.Type == ElementType.Types.Gateway then
         updateGatewayProps(element, newProps)
     elseif element.Type == ElementType.Types.StatefulComponent then
         element.class:__update(newProps)
+    elseif element.Type == ElementType.Types.Fragment then
+        if element.class then
+            updateFragments(element.class, newProps)
+        else
+            updateFragments(element, newProps)
+        end
     end
 
 end
@@ -178,6 +190,18 @@ function mount(element, tree)
 
 end
 
+function unmountFragment(element)
+    if element.components then
+        for _, nodes in pairs(element.components) do
+            unmount(nodes)
+        end
+    elseif element.class.components then
+        for _, nodes in pairs(element.class.components) do
+            unmount(nodes)
+        end
+    end
+end
+
 function unmount(element)
 
     local path = element.Parent
@@ -191,9 +215,7 @@ function unmount(element)
             unmount(nodes)
         end
     elseif element.Type == ElementType.Types.Fragment then
-        for _, nodes in pairs(element.components) do
-            unmount(nodes)
-        end
+        unmountFragment(element)
     elseif element.Type == ElementType.Types.Host then
         if element.instance and typeof(element.instance) == "Instance" then
 
@@ -215,8 +237,8 @@ function unmount(element)
 end
 
 function unmountwhileUpdating(element)
-    if element.Type == ElementType.Types.StatefulComponent then
-        element.class:__unmountNode()
+	if element.Type == ElementType.Types.StatefulComponent then
+		unmountwhileUpdating(element.class.rootNode)
     elseif element.Type == ElementType.Types.Functional then
         unmountwhileUpdating(element.rootNode)
     elseif element.Type == ElementType.Types.Gateway then
@@ -247,7 +269,7 @@ end
 
 function update(currentTree, newTree)
     unmountwhileUpdating(currentTree)
-    updateProps(currentTree, newTree.props)
+    updateProps(currentTree, newTree)
     preMount(currentTree, currentTree.Parent)
     return currentTree
 end
@@ -257,5 +279,6 @@ reconciler.update = update
 reconciler.unmount = unmount
 reconciler.unmountSecond = unmountwhileUpdating
 reconciler.premount = preMount
+reconciler.updateProps = updateProps
 
 return reconciler

@@ -105,7 +105,13 @@ end
 
 function SendSignal(class, Type, ...)
 	class.Signals[Type]:Fire(...)
-	print("Fired:", Type, "Signal")
+end
+
+function Component:__render(hostParent)
+	local newElement = self:render()
+	self.rootNode = newElement
+	self.Parent = hostParent
+	Reconciler.premount(newElement, hostParent)
 end
 
 function Component:__mount(element, hostParent)
@@ -120,10 +126,7 @@ function Component:__mount(element, hostParent)
 
 	if self.render then
 
-	    local newElement = self:render()
-		self.rootNode = newElement
-		self.rootNode.Parent = hostParent
-		Reconciler.premount(newElement, hostParent)
+	    self:__render(hostParent)
 
 		if self.mounted == false then
 			SendSignal(self, "didMount")
@@ -135,23 +138,24 @@ function Component:__mount(element, hostParent)
 	return element
 end
 
-function Component:__unmountNode()
-	Reconciler.unmountSecond(self.rootNode)
-end
-
 function Component:__unmount()
-	SendSignal(self, "willUnmount")
-	self:__unmountNode()
+
+	if self.mounted == true then
+		SendSignal(self, "willUnmount")
+		Reconciler.unmountSecond(self.rootNode)
+		SendSignal(self, "didUnmount")
+	end
+
 	self.mounted = false
-	SendSignal(self, "didUnmount")
 end
 
 function Component:__update(newProps)
 	SendSignal(self, "willUpdate", self.props)
 
-	self:__unmountNode()
+	Reconciler.unmountSecond(self.rootNode)
+	print(self.rootNode)
 
-	for i, v in pairs(newProps) do
+	for i, v in pairs(newProps.props) do
 		self.props[i] = v
 	end
 
