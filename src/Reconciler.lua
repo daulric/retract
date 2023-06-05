@@ -43,6 +43,11 @@ end
 
 function updateGatewayProps(element, newProps)
     element.props.path = newProps.path
+
+    for i, v in pairs(element.props[Children]) do
+        updateDummyProps(v)
+    end
+
 end
 
 function updateFunctionalProps(element, newProps)
@@ -55,18 +60,31 @@ function updateFunctionalProps(element, newProps)
 
     local newElement = element.class(element.props)
     element.rootNode = newElement
+
+    for i, v in pairs(element.props[Children]) do
+        updateDummyProps(v)
+    end
+
 end
 
 function updateHostProps(element, newProps)
     DeleteConnection(element)
 
     for i, v in pairs(newProps) do
-            if i ~=  Children then
-                element.props[i] = v
-            end
+        if i ~=  Children then
+            element.props[i] = v
+        end
+    end
+
+    for i, v in pairs(element.props[Children]) do
+        updateDummyProps(v)
     end
 
     applyProps(element, element.instance)
+end
+
+function updateDummyProps(element)
+    updateProps(element, {})
 end
 
 function updateProps(element, newProps)
@@ -77,8 +95,9 @@ function updateProps(element, newProps)
     elseif element.Type == ElementType.Types.Host then
         updateGatewayProps(element, newProps)
     elseif element.Type == ElementType.Types.StatefulComponent then
-        element.class:__update(element, newProps)
+        element.class:__update(newProps)
     end
+
 end
 
 function ManageFragment(fragment, tree)
@@ -101,20 +120,13 @@ function HandleGateway(element)
     end
 end
 
-function ManageFunctional(element, newElement, tree)
-
-    element.rootNode = newElement
-
-    local instance = preMount(newElement, tree)
-    element.instance = instance
-end
-
 function preMount(element, tree)
 
     if element.Type == ElementType.Types.Functional then
         local newElement = element.class(element.props)
         assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
-        ManageFunctional(element, newElement, tree)
+        element.rootNode = newElement
+        preMount(newElement, tree)
     end
 
     if element.Type == ElementType.Types.StatefulComponent then
@@ -222,8 +234,8 @@ function unmountwhileUpdating(element)
 
             if element.instance.Parent ~= nil then
                 element.instance:Destroy()
-                element.instance = nil
             end
+
         end
 
         for _, nodes in pairs(element.props[Children]) do
@@ -236,7 +248,8 @@ end
 function update(currentTree, newTree)
     unmountwhileUpdating(currentTree)
     updateProps(currentTree, newTree.props)
-    return mount(currentTree, currentTree.Parent)
+    preMount(currentTree, currentTree.Parent)
+    return currentTree
 end
 
 reconciler.mount = mount

@@ -53,6 +53,7 @@ function Component:extend(name)
 
 	class._name = name or tostring(self)
 	class.state = {isState = true}
+	class.mounted = false
 	table.freeze(class.state)
 
 	createSignal(class, "didMount")
@@ -77,8 +78,8 @@ function ComponentAspectSignal(component)
     end
 
     if component.willUpdate then
-        Signals.willUpdate:Connect(function()
-            component:willUpdate(component.props)
+        Signals.willUpdate:Connect(function(props)
+            component:willUpdate(props)
         end)
     end
     
@@ -89,8 +90,8 @@ function ComponentAspectSignal(component)
     end
 
     if component.didUpdate then
-        Signals.didUpdate:Connect(function(tree)
-            component:didUpdate(tree.props)
+        Signals.didUpdate:Connect(function(props)
+            component:didUpdate(props)
         end)
     end
 
@@ -104,6 +105,7 @@ end
 
 function SendSignal(class, Type, ...)
 	class.Signals[Type]:Fire(...)
+	print("Fired:", Type, "Signal")
 end
 
 function Component:__mount(element, hostParent)
@@ -117,11 +119,17 @@ function Component:__mount(element, hostParent)
 	end
 
 	if self.render then
+
 	    local newElement = self:render()
 		self.rootNode = newElement
 		self.rootNode.Parent = hostParent
-		element.instance = Reconciler.premount(newElement, hostParent)
-		SendSignal(self, "didMount")
+		Reconciler.premount(newElement, hostParent)
+
+		if self.mounted == false then
+			SendSignal(self, "didMount")
+			self.mounted = true
+		end
+
 	end
 
 	return element
@@ -134,11 +142,12 @@ end
 function Component:__unmount()
 	SendSignal(self, "willUnmount")
 	self:__unmountNode()
+	self.mounted = false
 	SendSignal(self, "didUnmount")
 end
 
-function Component:__update(element, newProps)
-	SendSignal(self, "willUpdate")
+function Component:__update(newProps)
+	SendSignal(self, "willUpdate", self.props)
 
 	self:__unmountNode()
 
@@ -146,11 +155,7 @@ function Component:__update(element, newProps)
 		self.props[i] = v
 	end
 
-	local newRender = self:render()
-	self.rootNode = newRender
-
-	element.instance = Reconciler.premount(newRender, self.Parent)
-	SendSignal(self, "didUpdate")
+	SendSignal(self, "didUpdate", self.props)
 end
 
 return Component

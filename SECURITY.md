@@ -8,7 +8,7 @@ These are all the supported versions with security updates that are in wally.
 | ------- | -----------------  |
 | 0.0.5 < | ❌                |
 | 0.0.8   | ✅                |
-| > 0.0.9 | ✅                |
+| > 0.0.10 | ✅                |
 
 ## Reporting a Vulnerability
 
