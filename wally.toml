@@ -1,6 +1,6 @@
 [package]
 name = "daulric/retract"
-version = "0.0.11"
+version = "0.0.12"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 

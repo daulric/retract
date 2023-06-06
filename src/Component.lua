@@ -150,7 +150,9 @@ function Component:__unmount()
 end
 
 function Component:__update(newProps)
-	SendSignal(self, "willUpdate", self.props)
+	local oldProps = self.props
+	SendSignal(self, "willUpdate", newProps.props)
+	local path = self.Parent
 
 	Reconciler.unmountSecond(self.rootNode)
 	print(self.rootNode)
@@ -159,7 +161,8 @@ function Component:__update(newProps)
 		self.props[i] = v
 	end
 
-	SendSignal(self, "didUpdate", self.props)
+	self:__render(path)
+	SendSignal(self, "didUpdate", oldProps)
 end
 
 return Component

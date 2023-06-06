@@ -7,8 +7,6 @@ local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
 local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
 
-local ComponentSignal = require(system.ComponentSignal)
-
 function applyProps(element, instance)
     local connections = {}
 
@@ -43,54 +41,31 @@ end
 
 function updateGatewayProps(element, newProps)
     element.props.path = newProps.props.path
-
-    for i, v in pairs(element.props[Children]) do
-        updateDummyProps(v)
-    end
-
 end
 
 function updateFunctionalProps(element, newProps)
 
     for i, v in pairs(newProps.props) do
-        if i ~= Children then
-            element.props[i] = v
-        end
+        element.props[i] = v
     end
 
     local newElement = element.class(element.props)
     element.rootNode = newElement
-
-    for i, v in pairs(element.props[Children]) do
-        updateDummyProps(v)
-    end
-
 end
 
 function updateHostProps(element, newProps)
     DeleteConnection(element)
 
     for i, v in pairs(newProps.props) do
-        if i ~=  Children then
-            element.props[i] = v
-        end
+        element.props[i] = v
     end
 
-    for i, v in pairs(element.props[Children]) do
-        updateDummyProps(v)
-    end
-
-    applyProps(element, element.instance)
 end
 
 function updateFragments(element, newProps)
-    if element.components then
-        element.components = newProps.components
+    if element.class.components then
+        element.class.components = newProps.components
     end
-end
-
-function updateDummyProps(element)
-    updateProps(element, {})
 end
 
 function updateProps(element, newProps)
@@ -100,14 +75,8 @@ function updateProps(element, newProps)
         updateFunctionalProps(element, newProps)
     elseif element.Type == ElementType.Types.Gateway then
         updateGatewayProps(element, newProps)
-    elseif element.Type == ElementType.Types.StatefulComponent then
-        element.class:__update(newProps)
     elseif element.Type == ElementType.Types.Fragment then
-        if element.class then
-            updateFragments(element.class, newProps)
-        else
-            updateFragments(element, newProps)
-        end
+        updateFragments(element, newProps)
     end
 
 end
@@ -268,9 +237,15 @@ function unmountwhileUpdating(element)
 end
 
 function update(currentTree, newTree)
-    unmountwhileUpdating(currentTree)
-    updateProps(currentTree, newTree)
-    preMount(currentTree, currentTree.Parent)
+
+    if currentTree.Type == ElementType.Types.StatefulComponent then
+        currentTree.class:__update(newTree)
+    else
+        unmountwhileUpdating(currentTree)
+        updateProps(currentTree, newTree)
+        preMount(currentTree, currentTree.Parent)
+    end
+
     return currentTree
 end
 
