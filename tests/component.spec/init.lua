@@ -18,4 +18,10 @@ return function ()
         expect(component:__unmount()).to.never.be.ok()
     end)
 
+    it("should update the data", function()
+        expect(component:__update(ReTract.createElement(component, {
+            name = "idk"
+        }))).to.be.ok()
+    end)
+
 end

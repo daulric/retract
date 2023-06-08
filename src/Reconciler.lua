@@ -6,6 +6,7 @@ local Type = require(markers.Type)
 local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
 local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
+local createElement = require(script.Parent:WaitForChild("nodes").createElement)
 
 function applyProps(element, instance)
     local connections = {}
@@ -39,44 +40,28 @@ function DeleteConnection(element)
     end
 end
 
-function updateGatewayProps(element, newProps)
-    element.props.path = newProps.props.path
-end
-
-function updateFunctionalProps(element, newProps)
-
-    for i, v in pairs(newProps.props) do
-        element.props[i] = v
-    end
-
-    local newElement = element.class(element.props)
-    element.rootNode = newElement
-end
-
-function updateHostProps(element, newProps)
-    DeleteConnection(element)
-
-    for i, v in pairs(newProps.props) do
-        element.props[i] = v
-    end
-
-end
-
-function updateFragments(element, newProps)
-    if element.class.components then
-        element.class.components = newProps.components
-    end
-end
-
 function updateProps(element, newProps)
-    if element.Type == ElementType.Types.Host then
-        updateHostProps(element, newProps)
-    elseif element.Type == ElementType.Types.Functional then
-        updateFunctionalProps(element, newProps)
-    elseif element.Type == ElementType.Types.Gateway then
-        updateGatewayProps(element, newProps)
-    elseif element.Type == ElementType.Types.Fragment then
-        updateFragments(element, newProps)
+
+    if element.Type == ElementType.Types.StatefulComponent then
+        element.class:__update(newProps)
+
+    else
+
+        for i, v in pairs(newProps) do
+            element.props[i] = v
+        end
+
+        if element.Type == ElementType.Types.Host then
+            DeleteConnection(element)
+        elseif element.Type == ElementType.Types.Functional then
+            local newElement = element.class(element.props)
+            element.rootNode = newElement
+        elseif element.Type == ElementType.Types.Fragment then
+            for i, v in pairs(element.components) do
+                updateProps(v, {})
+            end
+        end
+
     end
 
 end
@@ -236,16 +221,24 @@ function unmountwhileUpdating(element)
     end
 end
 
-function update(currentTree, newTree)
+function preUpdate(currentTree, props)
+    unmountwhileUpdating(currentTree)
+    updateProps(currentTree, props)
+    preMount(currentTree, currentTree.Parent)
 
-    if currentTree.Type == ElementType.Types.StatefulComponent then
-        currentTree.class:__update(newTree)
-    else
-        unmountwhileUpdating(currentTree)
-        updateProps(currentTree, newTree)
-        preMount(currentTree, currentTree.Parent)
+    for i, v in pairs(currentTree.props[Children]) do
+        preUpdate(v, {})
     end
 
+end
+
+function update(currentTree, newTree)
+
+    if currentTree.Type == ElementType.Types.Fragment and newTree.Type == ElementType.Types.Fragment then
+        currentTree.components = newTree.components
+    end
+
+    preUpdate(currentTree, newTree.props)
     return currentTree
 end
 
@@ -255,5 +248,6 @@ reconciler.unmount = unmount
 reconciler.unmountSecond = unmountwhileUpdating
 reconciler.premount = preMount
 reconciler.updateProps = updateProps
+reconciler.preupdate = preUpdate
 
 return reconciler

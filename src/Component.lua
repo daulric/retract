@@ -9,6 +9,7 @@ local Children = require(markers.Children)
 local Reconciler = require(script.Parent:WaitForChild("Reconciler"))
 local system = script.Parent:WaitForChild("system")
 local Signal = require(system:WaitForChild("Signal"))
+local createElement = require(script.Parent:WaitForChild("nodes").createElement)
 
 function Component:setState(value: any)
 
@@ -138,6 +139,10 @@ function Component:__mount(element, hostParent)
 	return element
 end
 
+function Component:__unmountwithChanging()
+	Reconciler.unmountSecond(self.rootNode)
+end
+
 function Component:__unmount()
 
 	if self.mounted == true then
@@ -151,18 +156,25 @@ end
 
 function Component:__update(newProps)
 	local oldProps = self.props
-	SendSignal(self, "willUpdate", newProps.props)
+	SendSignal(self, "willUpdate", newProps)
 	local path = self.Parent
 
 	Reconciler.unmountSecond(self.rootNode)
-	print(self.rootNode)
 
-	for i, v in pairs(newProps.props) do
-		self.props[i] = v
+	if newProps.props then
+		for i, v in pairs(newProps) do
+			self.props[i] = v
+		end
 	end
 
 	self:__render(path)
+
+	for i, v in pairs(self.props[Children]) do
+		Reconciler.preupdate(v, {})
+	end
+
 	SendSignal(self, "didUpdate", oldProps)
+	return self
 end
 
 return Component
