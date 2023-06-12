@@ -13,7 +13,7 @@ function Manager:connect(element: Instance, key, value)
         end)
 
     elseif key.Type == Type.AttributeChange then
-        return element:GetPropertyChangedSignal(key.name):Connect(function(...)
+        return element:GetAttributeChangedSignal(key.name):Connect(function(...)
             value(element, ...)
         end)
     end
