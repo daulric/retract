@@ -48,6 +48,15 @@ function ElementTypeInternal.typeof(element)
 
 end
 
+function ElementTypeInternal.iterateElements(index)
+    if type(index) == "table" then
+        return pairs(index)
+    end
+
+    error("This is not a valid elements! "..tostring(index))
+
+end
+
 getmetatable(ElementType).__index = ElementTypeInternal
 
 return ElementType

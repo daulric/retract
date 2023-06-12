@@ -1,6 +1,7 @@
 [package]
 name = "daulric/retract"
-version = "0.0.13"
+version = "0.0.14"
+description = "A declarative lua library for creating and managing roblox components"
 registry = "https://github.com/UpliftGames/wally-index"
 realm = "shared"
 

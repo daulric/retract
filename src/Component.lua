@@ -5,11 +5,11 @@ local ElementType = require(script.Parent:WaitForChild("markers").ElementType)
 local markers = script.Parent:WaitForChild("markers")
 
 local Children = require(markers.Children)
+local Lifecycle = require(markers.Lifecycle)
 
 local Reconciler = require(script.Parent:WaitForChild("Reconciler"))
 local system = script.Parent:WaitForChild("system")
 local Signal = require(system:WaitForChild("Signal"))
-local createElement = require(script.Parent:WaitForChild("nodes").createElement)
 
 function Component:setState(value: any)
 
@@ -55,6 +55,7 @@ function Component:extend(name)
 	class._name = name or tostring(self)
 	class.state = {isState = true}
 	class.mounted = false
+	class.lifecycle = Lifecycle.Pending
 	table.freeze(class.state)
 
 	createSignal(class, "didMount")
@@ -116,18 +117,19 @@ function Component:__render(hostParent)
 end
 
 function Component:__mount(element, hostParent)
+	self.lifecycle = Lifecycle.Mounting
 	self.props = element.props
 
 	task.spawn(ComponentAspectSignal, self)
 
 	if self.init then
-	    local success, err = pcall(self.init, self)
+	    local success, err = pcall(self.init, self, self.props)
 	    assert(success, err)
 	end
 
 	if self.render then
 
-	    self:__render(hostParent)
+		self:__render(hostParent)
 
 		if self.mounted == false then
 			SendSignal(self, "didMount")
@@ -144,17 +146,20 @@ function Component:__unmountwithChanging()
 end
 
 function Component:__unmount()
+	self.lifecycle = Lifecycle.Unmounting
 
 	if self.mounted == true then
 		SendSignal(self, "willUnmount")
-		Reconciler.unmountSecond(self.rootNode)
+		Reconciler.unmount(self.rootNode)
 		SendSignal(self, "didUnmount")
 	end
 
 	self.mounted = false
+	self.lifecycle = Lifecycle.Pending
 end
 
 function Component:__update(newProps)
+	self.lifecycle = Lifecycle.Updating
 	local oldProps = self.props
 	SendSignal(self, "willUpdate", newProps)
 	local path = self.Parent
@@ -163,7 +168,9 @@ function Component:__update(newProps)
 
 	if newProps.props then
 		for i, v in pairs(newProps) do
-			self.props[i] = v
+			if i ~= Children then
+				self.props[i] = v
+			end
 		end
 	end
 
