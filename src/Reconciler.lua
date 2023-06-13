@@ -45,22 +45,32 @@ function updateProps(element, newProps)
     end
 end
 
-function ManageFragment(fragment, tree)
-    for index, node in ElementType.iterateElements(fragment.components) do
-        preMount(node, tree)
+function ManageFragment(element, hostParent)
+
+    local elements
+
+    if element.class then
+        elements = element.class.elements
+    else
+        elements = element.elements
     end
+
+    updateChildren(elements, hostParent)
 end
 
 function HandleGateway(element)
     local hostParent = element.props.path
     local children = element.props[Children]
 
-    if typeof(hostParent) == "Instance" then
-        for _, node in ElementType.iterateElements(children) do
-            local instance = preMount(node, hostParent)
-            node.instance = instance
-        end
+    assert(hostParent ~= nil, "There is no host parent")
 
+    updateChildren(children, hostParent)
+end
+
+function updateChildren(children, hostParent)
+    for _, element in ElementType.iterateElements(children) do
+        local instance = preMount(element, hostParent)
+        element.instance = instance
     end
 end
 
@@ -79,14 +89,7 @@ function preMount(element, hostParent)
     end
 
     if element.Type == ElementType.Types.Fragment then
-
-        if element.class then
-            local newFragment = element.class
-            ManageFragment(newFragment, hostParent)
-        else
-            ManageFragment(element, hostParent)
-        end
-
+        ManageFragment(element, hostParent)
     end
 
     if element.Type == ElementType.Types.Gateway then
@@ -100,9 +103,7 @@ function preMount(element, hostParent)
 
         applyProps(element)
 
-        for _, child in ElementType.iterateElements(element.props[Children]) do
-            preMount(child, completeInstance)
-        end
+        updateChildren(element.props[Children], completeInstance)
 
         if typeof(hostParent) == "Instance" then
             completeInstance.Parent = hostParent
@@ -139,10 +140,10 @@ function unmount(element)
     elseif element.Type == ElementType.Types.Fragment then
         local components
 
-        if element.class and element.class.components then
-            components = element.class.components
-        elseif element.components then
-            components = element.components
+        if element.class then
+            components = element.class.elements
+        elseif element.elements then
+            components = element.elements
         end
 
         for i, v in pairs(components) do
@@ -178,7 +179,7 @@ function unmountwhileUpdating(element)
             unmountwhileUpdating(nodes)
         end
     elseif element.Type == ElementType.Types.Fragment then
-        for _, nodes in ElementType.iterateElements(element.components) do
+        for _, nodes in ElementType.iterateElements(element.elements) do
             unmountwhileUpdating(nodes)
         end
     elseif element.Type == ElementType.Types.Host then
@@ -218,5 +219,6 @@ reconciler.unmountSecond = unmountwhileUpdating
 reconciler.premount = preMount
 reconciler.updateProps = updateProps
 reconciler.preupdate = preUpdate
+reconciler.updateChildren = updateChildren
 
 return reconciler

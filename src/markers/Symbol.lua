@@ -4,7 +4,7 @@ function Symbol.assign(name: string)
     local symbol = newproxy(true)
 
     getmetatable(symbol).__tostring = function()
-        return ("Assigned(%s)"):format(name)
+        return ("Symbol(%s)"):format(name)
     end
 
     return symbol

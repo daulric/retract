@@ -161,13 +161,22 @@ end
 function Component:__update(newProps)
 	self.lifecycle = Lifecycle.Updating
 	local oldProps = self.props
-	SendSignal(self, "willUpdate", newProps)
 	local path = self.Parent
 
 	Reconciler.unmountSecond(self.rootNode)
 
+	local props
+
 	if newProps.props then
-		for i, v in pairs(newProps) do
+		props = newProps.props
+	else
+		props = newProps
+	end
+
+	SendSignal(self, "willUpdate", props)
+
+	if props then
+		for i, v in pairs(props) do
 			if i ~= Children then
 				self.props[i] = v
 			end

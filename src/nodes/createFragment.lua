@@ -1,10 +1,10 @@
 local markers = script.Parent.Parent:WaitForChild("markers")
 local ElementType = require(markers.ElementType)
 
-function createFragment(index)
+function createFragment(elements)
     return {
         Type = ElementType.Types.Fragment,
-        components = index,
+        elements = elements,
     }
 end
 

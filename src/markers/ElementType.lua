@@ -19,12 +19,17 @@ local ElementKindType = {
 }
 
 ElementTypeInternal.Types = ElementKindType
+ElementTypeInternal.Key = Symbol.assign("Private Key")
 
 local Types = {
     ["string"] = ElementKindType.Host,
     ["function"] = ElementKindType.Functional,
     [Gateway] = ElementKindType.Gateway
 }
+
+function noop()
+    return nil
+end
 
 function ElementTypeInternal.typeof(element)
 
@@ -49,6 +54,7 @@ function ElementTypeInternal.typeof(element)
 end
 
 function ElementTypeInternal.iterateElements(index)
+
     if type(index) == "table" then
         return pairs(index)
     end
