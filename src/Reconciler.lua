@@ -6,32 +6,37 @@ local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
 local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
 
-local lifecycle = require(script.Parent.markers.Lifecycle)
-
-function applyProps(element)
+function applyProp(element, index, value)
     local instance = element.instance
 
-    for index, property in pairs(element.props) do
-        -- This is for getting the children in the Component
-        if index == Children then
-            continue
-        end
-    
-        if index.Event then
-            SingleEventManager:connect(instance, index, property)
-        elseif index.Type == Type.Attribute then
-            instance:SetAttribute(index.name, property)
-        else
-            instance[index] = property
-        end
+    if index == Children then
+        return
     end
 
+    if index.Event then
+        SingleEventManager:connect(instance, index, value)
+    elseif index.Type == Type.Attribute then
+        instance:SetAttribute(index.name, value)
+    else
+        instance[index] = value
+    end
+
+end
+
+function applyProps(element)
+    for index, value in pairs(element.props) do
+        applyProp(element, index, value)
+    end
 end
 
 function updateProps(element, newProps)
 
     if element.Type == ElementType.Types.StatefulComponent then
         element.class:__update(newProps)
+    elseif element.Type == ElementType.Types.Fragment then
+        --[[ this here is a noop because fragments does not have props.
+            this is placed here to override the statement / code below
+        ]]
     else
         for i, v in pairs(newProps) do
 
@@ -45,32 +50,9 @@ function updateProps(element, newProps)
     end
 end
 
-function ManageFragment(element, hostParent)
-
-    local elements
-
-    if element.class then
-        elements = element.class.elements
-    else
-        elements = element.elements
-    end
-
-    updateChildren(elements, hostParent)
-end
-
-function HandleGateway(element)
-    local hostParent = element.props.path
-    local children = element.props[Children]
-
-    assert(hostParent ~= nil, "There is no host parent")
-
-    updateChildren(children, hostParent)
-end
-
 function updateChildren(children, hostParent)
     for _, element in ElementType.iterateElements(children) do
-        local instance = preMount(element, hostParent)
-        element.instance = instance
+        preMount(element, hostParent)
     end
 end
 
@@ -89,37 +71,49 @@ function preMount(element, hostParent)
     end
 
     if element.Type == ElementType.Types.Fragment then
-        ManageFragment(element, hostParent)
+
+        local components
+
+        if element.class then
+            components = element.class.elements
+        else
+            components = element.elements
+        end
+
+        updateChildren(components, hostParent)
     end
 
     if element.Type == ElementType.Types.Gateway then
-        HandleGateway(element)
+        local hostParent = element.props.path
+        local children = element.props[Children]
+
+        assert(hostParent ~= nil, "There is no host parent")
+
+        updateChildren(children, hostParent)
     end
 
     if element.Type == ElementType.Types.Host then
         local completeInstance = Instance.new(element.class)
 
         element.instance = completeInstance
-
+    
         applyProps(element)
-
-        updateChildren(element.props[Children], completeInstance)
-
+    
+        updateChildren(element.children, completeInstance)
+    
         if typeof(hostParent) == "Instance" then
             completeInstance.Parent = hostParent
         end
-
+    
         element.Parent = hostParent
-
-        return completeInstance
     end
+
 end
 
-function mount(element, tree)
+function mount(element, hostParent)
 
-    if type(element) == "table" then
-        preMount(element, tree)
-        element.Parent = tree
+    if typeof(element) == "table" then
+        preMount(element, hostParent)
         return element
     end
 
@@ -134,7 +128,7 @@ function unmount(element)
     elseif element.Type == ElementType.Types.Functional then
         unmount(element.rootNode)
     elseif element.Type == ElementType.Types.Gateway then
-        for _, nodes in pairs(element.props[Children]) do
+        for _, nodes in pairs(element.children) do
             unmount(nodes)
         end
     elseif element.Type == ElementType.Types.Fragment then
@@ -160,7 +154,7 @@ function unmount(element)
 
         end
     
-        for _, nodes in pairs(element.props[Children]) do
+        for _, nodes in pairs(element.children) do
             unmount(nodes)
         end
 
@@ -175,7 +169,7 @@ function unmountwhileUpdating(element)
     elseif element.Type == ElementType.Types.Functional then
         unmountwhileUpdating(element.rootNode)
     elseif element.Type == ElementType.Types.Gateway then
-        for _, nodes in ElementType.iterateElements(element.props[Children]) do
+        for _, nodes in ElementType.iterateElements(element.children) do
             unmountwhileUpdating(nodes)
         end
     elseif element.Type == ElementType.Types.Fragment then
@@ -185,7 +179,7 @@ function unmountwhileUpdating(element)
     elseif element.Type == ElementType.Types.Host then
         if element.instance and typeof(element.instance) == "Instance" then
 
-            for _, nodes in ElementType.iterateElements(element.props[Children]) do
+            for _, nodes in ElementType.iterateElements(element.children) do
                 unmountwhileUpdating(nodes)
             end
 
@@ -201,8 +195,10 @@ function preUpdate(currentTree, props)
     unmountwhileUpdating(currentTree)
     updateProps(currentTree, props)
 
-    for i, v in pairs(currentTree.props[Children]) do
-        preUpdate(v, {})
+    if currentTree.children then
+        for i, v in ElementType.iterateElements(currentTree.children) do
+            preUpdate(v, {})
+        end
     end
 
 end

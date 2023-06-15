@@ -55,12 +55,32 @@ end
 
 function ElementTypeInternal.iterateElements(index)
 
-    if type(index) == "table" then
+    local regType = typeof(index)
+
+    if index.props then
+
+        local called = false
+
+        return function (_, _)
+            if called then
+                return nil 
+            else
+                called = true
+                return ElementTypeInternal.Key, index
+            end
+        end
+
+    end
+
+    if index == nil or regType == "boolean" then
+        return (noop :: any)
+    end
+
+    if regType == "table" then
         return pairs(index)
     end
 
     error("This is not a valid elements! "..tostring(index))
-
 end
 
 getmetatable(ElementType).__index = ElementTypeInternal

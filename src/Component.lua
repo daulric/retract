@@ -56,6 +56,7 @@ function Component:extend(name)
 	class.state = {isState = true}
 	class.mounted = false
 	class.lifecycle = Lifecycle.Pending
+	class.updating = false
 	table.freeze(class.state)
 
 	createSignal(class, "didMount")
@@ -127,15 +128,11 @@ function Component:__mount(element, hostParent)
 	    assert(success, err)
 	end
 
-	if self.render then
+	self:__render(hostParent)
 
-		self:__render(hostParent)
-
-		if self.mounted == false then
-			SendSignal(self, "didMount")
-			self.mounted = true
-		end
-
+	if self.mounted == false then
+		SendSignal(self, "didMount")
+		self.mounted = true
 	end
 
 	return element
@@ -190,6 +187,7 @@ function Component:__update(newProps)
 	end
 
 	SendSignal(self, "didUpdate", oldProps)
+
 	return self
 end
 

@@ -14,14 +14,14 @@ return function ()
         expect(handler).to.be.ok()
     end)
 
-    it("unmount component", function()
-        expect(component:__unmount()).to.never.be.ok()
-    end)
-
-    it("should update the data", function()
+    it("should update the component", function()
         expect(component:__update(ReTract.createElement(component, {
             name = "idk"
         }))).to.be.ok()
+    end)
+
+    it("unmount component", function()
+        expect(component:__unmount()).to.never.be.ok()
     end)
 
 end
