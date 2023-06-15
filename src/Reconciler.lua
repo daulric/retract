@@ -14,7 +14,8 @@ function applyProp(element, index, value)
     end
 
     if index.Event then
-        SingleEventManager:connect(instance, index, value)
+        local connection = SingleEventManager:connect(instance, index, value)
+        table.insert(element.connections, connection)
     elseif index.Type == Type.Attribute then
         instance:SetAttribute(index.name, value)
     else
@@ -38,6 +39,9 @@ function updateProps(element, newProps)
             this is placed here to override the statement / code below
         ]]
     else
+
+        unmountwhileUpdating(element)
+
         for i, v in pairs(newProps) do
 
             if i ~= Children then
@@ -67,7 +71,11 @@ function preMount(element, hostParent)
 
     if element.Type == ElementType.Types.StatefulComponent then
         local component = element.class
-        component:__mount(element, hostParent)
+        if component.mounted == false then
+            component:__mount(element, hostParent)
+        else
+            component:__render(hostParent)
+        end
     end
 
     if element.Type == ElementType.Types.Fragment then
@@ -96,7 +104,8 @@ function preMount(element, hostParent)
         local completeInstance = Instance.new(element.class)
 
         element.instance = completeInstance
-    
+        element.connections = {}
+
         applyProps(element)
     
         updateChildren(element.children, completeInstance)
@@ -117,6 +126,16 @@ function mount(element, hostParent)
         return element
     end
 
+end
+
+function deleteConnections(element)
+    if element.connections then
+        for i, v in pairs(element.connections) do
+            if v.Connected then
+                v:Disconnect()
+            end
+        end
+    end
 end
 
 function unmount(element)
@@ -147,6 +166,7 @@ function unmount(element)
     elseif element.Type == ElementType.Types.Host then
         if element.instance and typeof(element.instance) == "Instance" then
 
+            deleteConnections(element)
             if element.instance.Parent ~= nil then
                 element.instance:Destroy()
                 element.instance = nil
@@ -183,16 +203,14 @@ function unmountwhileUpdating(element)
                 unmountwhileUpdating(nodes)
             end
 
-            if element.instance.Parent ~= nil then
-                element.instance:Destroy()
-            end
+            deleteConnections(element)
+            element.instance:Destroy()
 
         end
     end
 end
 
 function preUpdate(currentTree, props)
-    unmountwhileUpdating(currentTree)
     updateProps(currentTree, props)
 
     if currentTree.children then

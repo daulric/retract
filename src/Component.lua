@@ -129,11 +129,8 @@ function Component:__mount(element, hostParent)
 	end
 
 	self:__render(hostParent)
-
-	if self.mounted == false then
-		SendSignal(self, "didMount")
-		self.mounted = true
-	end
+	SendSignal(self, "didMount")
+	self.mounted = true
 
 	return element
 end
@@ -180,12 +177,13 @@ function Component:__update(newProps)
 		end
 	end
 
-	self:__render(path)
-
-	for i, v in pairs(self.props[Children]) do
-		Reconciler.preupdate(v, {})
+	if self.props then
+		for i, v in pairs(self.props[Children]) do
+			Reconciler.preupdate(v, {})
+		end
 	end
 
+	self:__render(path)
 	SendSignal(self, "didUpdate", oldProps)
 
 	return self
