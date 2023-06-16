@@ -57,6 +57,7 @@ function Component:extend(name)
 	class.mounted = false
 	class.lifecycle = Lifecycle.Pending
 	class.updating = false
+	class.connections = {}
 	table.freeze(class.state)
 
 	createSignal(class, "didMount")
@@ -73,35 +74,46 @@ end
 function ComponentAspectSignal(component)
 
 	local Signals = component.Signals
+	local connections = component.connections
 
     if component.willUnmount then
-        Signals.willUnmount:Connect(function()
+        local connection = Signals.willUnmount:Connect(function()
             component:willUnmount()
         end)
+
+		table.insert(connections, connection)
     end
 
     if component.willUpdate then
-        Signals.willUpdate:Connect(function(props)
+        local connection = Signals.willUpdate:Connect(function(props)
             component:willUpdate(props)
         end)
+
+		table.insert(connections, connection)
     end
     
     if component.didUnmount then
-        Signals.didUnmount:Connect(function()
+        local connection = Signals.didUnmount:Connect(function()
             component:didUnmount()
         end)
+
+		table.insert(connections, connection)
     end
 
     if component.didUpdate then
-        Signals.didUpdate:Connect(function(props)
+        local connection = Signals.didUpdate:Connect(function(props)
             component:didUpdate(props)
         end)
+
+		table.insert(connections, connection)
     end
 
     if component.didMount then
-        Signals.didMount:Connect(function(tree)
+        local connection = Signals.didMount:Connect(function(tree)
             component:didMount()
         end)
+
+		table.insert(connections, connection)
     end
 
 end
@@ -123,14 +135,18 @@ function Component:__mount(element, hostParent)
 
 	task.spawn(ComponentAspectSignal, self)
 
-	if self.init then
-	    local success, err = pcall(self.init, self, self.props)
-	    assert(success, err)
-	end
+	if self.mounted == false then
 
-	self:__render(hostParent)
-	SendSignal(self, "didMount")
-	self.mounted = true
+		if self.init then
+	    	local success, err = pcall(self.init, self, self.props)
+	    	assert(success, err)
+		end
+
+		self:__render(hostParent)
+		SendSignal(self, "didMount")
+		self.mounted = true
+
+	end
 
 	return element
 end
@@ -146,6 +162,11 @@ function Component:__unmount()
 		SendSignal(self, "willUnmount")
 		Reconciler.unmount(self.rootNode)
 		SendSignal(self, "didUnmount")
+
+		for i, v in pairs(self.connections) do
+			v:Disconnect()
+		end
+
 	end
 
 	self.mounted = false
