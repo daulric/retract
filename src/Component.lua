@@ -10,6 +10,7 @@ local Lifecycle = require(markers.Lifecycle)
 local Reconciler = require(script.Parent:WaitForChild("Reconciler"))
 local system = script.Parent:WaitForChild("system")
 local Signal = require(system:WaitForChild("Signal"))
+local Cleany = require(system:WaitForChild("Cleany"))
 
 function Component:setState(value: any)
 
@@ -57,7 +58,7 @@ function Component:extend(name)
 	class.mounted = false
 	class.lifecycle = Lifecycle.Pending
 	class.updating = false
-	class.connections = {}
+	class.__cleanup = Cleany.create()
 	table.freeze(class.state)
 
 	createSignal(class, "didMount")
@@ -71,49 +72,40 @@ function Component:extend(name)
 	return class
 end
 
-function ComponentAspectSignal(component)
+type Component = typeof(Component:extend())
+
+function ComponentAspectSignal(component: Component)
 
 	local Signals = component.Signals
-	local connections = component.connections
 
     if component.willUnmount then
-        local connection = Signals.willUnmount:Connect(function()
+        component.__cleanup:Connect( Signals.willUnmount, function()
             component:willUnmount()
         end)
-
-		table.insert(connections, connection)
     end
 
     if component.willUpdate then
-        local connection = Signals.willUpdate:Connect(function(props)
-            component:willUpdate(props)
-        end)
-
-		table.insert(connections, connection)
+		component.__cleanup:Connect(Signals.willUpdate, function(props)
+			component:willUpdate(props)
+		end)
     end
     
     if component.didUnmount then
-        local connection = Signals.didUnmount:Connect(function()
+        component.__cleanup:Connect( Signals.didUnmount, function()
             component:didUnmount()
         end)
-
-		table.insert(connections, connection)
     end
 
     if component.didUpdate then
-        local connection = Signals.didUpdate:Connect(function(props)
+        component.__cleanup:Connect( Signals.didUpdate, function(props)
             component:didUpdate(props)
         end)
-
-		table.insert(connections, connection)
     end
 
     if component.didMount then
-        local connection = Signals.didMount:Connect(function(tree)
+        component.__cleanup:Connect(Signals.didMount, function()
             component:didMount()
         end)
-
-		table.insert(connections, connection)
     end
 
 end
@@ -163,10 +155,7 @@ function Component:__unmount()
 		Reconciler.unmount(self.rootNode)
 		SendSignal(self, "didUnmount")
 
-		for i, v in pairs(self.connections) do
-			v:Disconnect()
-		end
-
+		self.__cleanup:Clean()
 	end
 
 	self.mounted = false
