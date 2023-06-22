@@ -8,11 +8,11 @@ There are three types of Elements:
 
 ### Host Element
 ```lua
-local handle = ReTract.createElement("ScreenGui", {
-    Name = "ReTract",
+local handle = Retract.createElement("ScreenGui", {
+    Name = "Retract",
 }, {
-    Frame = ReTract.createElement("Frame", {
-        Name = "ReTract Frame",
+    Frame = Retract.createElement("Frame", {
+        Name = "Retract Frame",
         Size = Udim2.new(0.5, 0, 0.5, 0)
     })
 })
@@ -22,20 +22,20 @@ local handle = ReTract.createElement("ScreenGui", {
 Elements can be functional as well.
 ```lua
 function build(props)
-    return ReTract.createElement("ScreenGui", {
-        Name = "ReTract"
+    return Retract.createElement("ScreenGui", {
+        Name = "Retract"
     }, {
-        Frame = ReTract.createElement("Frame", {
+        Frame = Retract.createElement("Frame", {
             Name = props.name,
             Size = Udim2.new(0.5, 0, 0.5, 0)
         })
-    }, props[ReTract.Children])
+    }, props[Retract.Children])
 end
 ```
 
 ### Stateful Element
 ```lua
-local myComp = ReTract.Component:extend(name: string)
+local myComp = Retract.Component:extend(name: string)
 
 function myComp:init()
     self:setState({
@@ -44,10 +44,10 @@ function myComp:init()
 end
 
 function myComp:render()
-    return ReTract.createElement("TextLabel", {
+    return Retract.createElement("TextLabel", {
         Name = self.state.name -- john
         Text = self.state.text
-    }, self.props[ReTract.Children])
+    }, self.props[Retract.Children])
 end
 
 return myComp
@@ -56,49 +56,55 @@ return myComp
 Instead of Using Create Element to have children, you can use fragments to create multiple children.
 
 ```lua
-local Fragments = ReTract.createFragment({
-    ReTract.createElement("StringValue", {
-        Value = props.value,
-        Name = props.name
-    }),
-    ReTract.createElement("BoolValue", {
-        Value = true,
-        Name = props.name2
+function Fragments(props)
+    return Retract.createFragment({
+        Retract.createElement("StringValue", {
+            Value = props.value,
+            Name = props.name
+        }),
+        Retract.createElement("BoolValue", {
+            Value = true,
+            Name = props.name2
+        })
     })
-})
+end
 
--- parenting fragments to ScreenGui
-ReTract.createElement(Fragments, {
+-- creating an element for the fragments.
+Retract.createElement(Fragments, {
     value = "hello",
     name = "Fragment",
     name2 = "Fragment2"
 })
 ```
 
+!!! note Note Brief
+
+    Because we are using `props`, we used a function to handle the props, otherwise you can create an element with fragments.
+
 ## **Mounting Element**
 This mounts the element to the instance which is the parent and it will return the tree.
 
 ```lua
-local handle = ReTract.createElement(require(path.to.module), {
+local handle = Retract.createElement(require(path.to.module), {
     text = "john doe is the best" -- > this will add to the state.
 }, {
-    ReTract.createElement("TextLabel", {
+    Retract.createElement("TextLabel", {
         Name = "Hello"
     })
 })
 
-ReTract.mount(handle, game.Players.LocalPlayer)
+Retract.mount(handle, game.Players.LocalPlayer)
 ```
 
 ## **Updating Element**
 This will update the original tree and take the place 
 
 ```lua
-handle = ReTract.update(handle, ReTract.createElement(require(path.to.module), {
-    text = "ReTract UI"    
+handle = Retract.update(handle, Retract.createElement(require(path.to.module), {
+    text = "Retract UI"    
 }, {
 
-  ReTract.createElement("TextLabel", {
+  Retract.createElement("TextLabel", {
     Name = "Hello",
   }),
 
@@ -109,5 +115,5 @@ handle = ReTract.update(handle, ReTract.createElement(require(path.to.module), {
 This will dismantle and destroy the element from the hub.
 
 ```lua
-ReTract.unmount(handle)
+Retract.unmount(handle)
 ```

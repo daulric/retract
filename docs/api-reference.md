@@ -2,9 +2,9 @@
 
 ## Methods
 
-### ReTract.createElement
+### Retract.createElement
 ```lua
-ReTract.createElement(class: any, [props, [children]]) -> element
+Retract.createElement(class: any, [props, [children]]) -> element
 
 type element = {
     [element validation]
@@ -15,44 +15,44 @@ type element = {
 ```
 This creates a tree to be mounted
 
-### ReTract.createFragment
+### Retract.createFragment
 ```lua
-ReTract.createFragment(index: trees) -> Fragment
+Retract.createFragment(index: trees) -> Fragment
 
 type Fragment = {
-    [fragment validation],
+    [fragment validation]: any,
     elements: {[any]: any},
 }
 ```
 This creates a fragment that contains elements / trees inside the index.
 
-### ReTract.mount
+### Retract.mount
 ```lua
-ReTract.mount(element: tree, path: Instance) -> tree
+Retract.mount(element: tree, path: Instance) -> tree
 ```
 This mounts the element to the path.
 
-### ReTract.unmount
+### Retract.unmount
 ```lua
-ReTract.unmount(element: tree) -> void
+Retract.unmount(element: tree) -> void
 ```
 This unmount and destroy instances from the tree in the path
 
-### ReTract.update
+### Retract.update
 ```lua
-ReTract.update(currentTree: tree, newTree: tree) -> tree
+Retract.update(currentTree: tree, newTree: tree) -> tree
 ```
 This updates the currrent tree.
 
 ## Component Types
-### ReTract.Component
+### Retract.Component
 This return creates a component with `:extend(name)` to create a component element
 
 ```lua
-local component = ReTract.Component:extend(name)
+local component = Retract.Component:extend(name)
 ```
 
-### ReTract.Gateway
+### Retract.Gateway
 This ports the element to another path in the game instead of the nested parent tree. This is important incase the nested tree is very deep.
 
 ```lua
@@ -61,11 +61,11 @@ ReTract.Gateway -> Gateway
 
 **Example**
 ```lua
-ReTract.createElement(ReTract.Gateway, {
+Retract.createElement(Retract.Gateway, {
     path = game.Workspace
 }, {
-    ReTract.createElement("ScreenGui", {Name = "ReTract Gateway"}, {
-        ReTract.createElement("Frame", {
+    Retract.createElement("ScreenGui", {Name = "Retract Gateway"}, {
+        Retract.createElement("Frame", {
             Name = "ReTract Gaeway Frame",
             Size = UDim2.new(1, 0, 1, 0),
             BackgroundColor3 = Color3.fromRGB(7, 90, 255)
@@ -77,10 +77,10 @@ ReTract.createElement(ReTract.Gateway, {
 This creates a gateway that ports instance to the path and the mounted path when `.mount` is called
 
 ## Constants
-### ReTract.Children
+### Retract.Children
 
 ```lua
-ReTract.Children -> Children
+Retract.Children -> Children
 ```
 
 This returns the children in the element when `createElement` is used.
@@ -88,75 +88,75 @@ This returns the children in the element when `createElement` is used.
 **Example with Functional Elements**
 ```lua
 function buildFrameWithChildren(props)
-    return ReTract.createElement("Frame", {
+    return Retract.createElement("Frame", {
         Name = "Hello",
         Size = UDim2.new(1, 0, 1, 0)
-    }, props[ReTract.Children])
+    }, props[Retract.Children])
 end
 ```
 
 **Example with Component Element**
 ```lua
-local Component = ReTract.Component:extend("Example")
+local Component = Retract.Component:extend("Example")
 
 function Component:render()
-    return ReTract.createElement("Frame", {
+    return Retract.createElement("Frame", {
         Name = "Hello",
         Size = UDim2.new(1, 0, 1, 0)
-    }, self.props[ReTract.Children])
+    }, self.props[Retract.Children])
 end
 
 return Component
 ```
 
-### ReTract.Event
+### Retract.Event
 ```lua
-ReTract.Event[Event_Name] -> function
+Retract.Event[Event_Name] -> function
 ```
 This handles event in the Instance
 
 **Usage**
 
 ```lua
-[ReTract.Event.MouseButton1Click] = function(element)
+[Retract.Event.MouseButton1Click] = function(element)
     print("button clicked!")
 end
 ```
 
 ### ReTract.Change
 ```lua
-ReTract.Change[Property Name] -> function
+Retract.Change[Property Name] -> function
 ```
 This wait for the property change signal in the Instance.
 
 **Usage**
 ```lua
-[ReTract.Change.Text] = function(element)
+[Retract.Change.Text] = function(element)
     print(element.Text)
 end
 ```
 
-### ReTract.Attribute
+### Retract.Attribute
 ```lua
-ReTract.Attribute[Attribute_Name] -> any
+Retract.Attribute[Attribute_Name] -> any
 ```
 This creates an attribute in the instance
 
 **Usage**
 ```lua
-[ReTract.Attribute.Hello] = "ReTract Attribute"
+[Retract.Attribute.Hello] = "ReTract Attribute"
 ```
 
-### ReTract.AttributeChange
+### Retract.AttributeChange
 ```lua
-ReTract.AttributeChange[Attribute_Name] -> function
+Retract.AttributeChange[Attribute_Name] -> function
 ```
 
 This listens for when the attribute changes.
 
 **Usage**
 ```lua
-[ReTract.AttributeChange.Hello] = function(element)
+[Retract.AttributeChange.Hello] = function(element)
     print(element:GetAttribute("Hello"))
 end
 ```
@@ -200,7 +200,7 @@ This returns the element in the component
 **Usage**
 ```lua
 function component:render()
-    return ReTract.createElement("Frame", {
+    return Retract.createElement("Frame", {
         Name = self.state.name
     })
 end

@@ -3,12 +3,12 @@ Fragments are used when creating a list of elements.
 ## Without Fragments
 ```lua
 function Items(props)
-    return ReTract.createElement("Frame", {}, {
-        ReTract.createElement("UIGridLayout", {
+    return Retract.createElement("Frame", {}, {
+        Retract.createElement("UIGridLayout", {
             -- props here
         }),
 
-        List = ReTract.createElement(List)
+        List = Retract.createElement(List)
     })
 end
 ```
@@ -19,11 +19,11 @@ Due to this reason, the grid layout will not be applied to these TextLabels beca
 
 ```lua
 function List(props)
-    return ReTract.createElement("Frame", {}, {
+    return Retract.createElement("Frame", {}, {
         Retract.createElement("TextLabel", {
             -- props here
         }),
-        ReTract.createElement("TextLabel", {
+        Retract.createElement("TextLabel", {
             -- props here
         })
     })
@@ -31,7 +31,7 @@ function List(props)
 end
 ```
 
-This is what we will get if we didn't use Fragments
+This is the result when you are not using fragments.
 ```
 Frame:
     UIGridLayout
@@ -44,11 +44,11 @@ Frame:
 
 ```lua
 function List(props)
-    return ReTract.createFragment({
+    return Retract.createFragment({
         Retract.createElement("TextLabel", {
             -- props here
         }),
-        ReTract.createElement("TextLabel", {
+        Retract.createElement("TextLabel", {
             -- props here
         })
     })

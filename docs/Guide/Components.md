@@ -1,7 +1,7 @@
-Managing and handling ReTract Components.
+Managing and handling Retract Components.
 
 ```lua
-local component = ReTract.Component:extend("Component")
+local component = Retract.Component:extend("Component")
 
 function component:init()
     self:setState({
@@ -29,21 +29,21 @@ function component:willUpdate()
 end
 
 function component:render()
-    return ReTract.createElement("TextButton", {
-        [ReTract.Change.Text] = function(element)
+    return Retract.createElement("TextButton", {
+        [Retract.Change.Text] = function(element)
             self.props.coins += self.state.number
             print(`text changed in {element.Name}: New Text: {element.Text}`)
         end,
-        [ReTract.Attribute.Hello] = "Hello" --> this is an attribute,
-        [ReTract.AttributeChange.Hello] = function(element)
+        [Retract.Attribute.Hello] = "Hello" --> this is an attribute,
+        [Retract.AttributeChange.Hello] = function(element)
             self.props.num += self.state.number
             print(`attribute canged in {element.Name}: New Attribute: {element:GetAttribute("Hello")}`)
         end,
-        [ReTract.Event.MouseButton1Click] = function(element)
+        [Retract.Event.MouseButton1Click] = function(element)
             element.Text = "ReTract:"..self.props.num
             element:SetAttribute("Hello", "ReTract Coins: "..self.props.coins)
         end,
-    }, self.props[ReTract.Children])
+    }, self.props[Retract.Children])
 end
 
 return component
@@ -51,27 +51,27 @@ return component
 --// In the Local Script
 local component = require(path.to.module)
 
-local element = ReTract.createElement(component, {
+local element = Retract.createElement(component, {
     coins = 100,
     num = 10,
 }, {
-    ReTract.createElement("Part", {
+    Retract.createElement("Part", {
         Name = "Hello"
     })
 })
 
-local handle = ReTract.mount(element, game.Players.LocalPlayer.PlayerGui)
+local handle = Retract.mount(element, game.Players.LocalPlayer.PlayerGui)
 
 while task.wait(10) do
-    handle = ReTract.update(handle, ReTract.createElement(component, {
+    handle = Retract.update(handle, Retract.createElement(component, {
         coins = 90,
         num = 10,
     }, {
-        ReTract.createElement("Part", {
+        Retract.createElement("Part", {
             Name = "Hello: Part"
         })
     }))
 end
 ```
 
-This is an example on how ReTract Componet are created and used.
+This is an example on how Retract Componet are created and used.

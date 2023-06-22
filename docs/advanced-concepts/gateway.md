@@ -1,15 +1,15 @@
-# ReTract Gateway
+# Retract Gateway
 
 Retract Gateway is a method used for porting elements to another path of the game.
 
 ```lua
-local element = ReTract.createElement(ReTract.Gateway, {
+local element = Retract.createElement(Retract.Gateway, {
     path = game.ReplicatedStorage
 }, {
-    ReTract.createElement("Part", {Name = "ReTract Part"})
+    Retract.createElement("Part", {Name = "Retract Part"})
 })
 
-ReTract.mount(element, game.Players.LocalPlayer.PlayerGui)
+Retract.mount(element, game.Players.LocalPlayer.PlayerGui)
 ```
 
 !!! tip
@@ -19,25 +19,25 @@ ReTract.mount(element, game.Players.LocalPlayer.PlayerGui)
 **Usage**
 
 ```lua
-local element = ReTract.createElement("ScreenGui", {
-    Name = "ReTract Component"
+local element = Retract.createElement("ScreenGui", {
+    Name = "Retract Component"
 }, {
-    TextLabel = ReTract.createElement("TextLabel", {
+    TextLabel = Retract.createElement("TextLabel", {
         Name = "TextLabel",
         Size = UDim2.new(0, 200, 0, 200),
-        Text = "ReTract",
+        Text = "Retract",
     }),
 
-    GatewayTest = ReTract.createElement(ReTract.Gateway, {
+    GatewayTest = Retract.createElement(Retract.Gateway, {
         path = game.ReplicatedStorage
     }, {
-        Part = ReTract.createElement("Part", {
+        Part = Retract.createElement("Part", {
             Name = "retracttype"
         })
     })
 })
 
-ReTract.mount(element, game.Players.LocalPlayer.PlayerGui)
+Retract.mount(element, game.Players.LocalPlayer.PlayerGui)
 ```
 
 The TextLabel will be parented to the Screen Gui, but the Part in the gateway will be parented to the path, which is ReplicatedStorage and not the Screen Gui
