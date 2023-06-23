@@ -1,10 +1,14 @@
 local reconciler = {}
 
 local markers = script.Parent:WaitForChild("markers")
+local system = script.Parent:WaitForChild("system")
+
 local Type = require(markers.Type)
 local ElementType = require(markers.ElementType)
 local Children = require(markers.Children)
 local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
+
+local createClone = require(system:WaitForChild("createClone"))
 
 function applyProp(element, index, value)
     local instance = element.instance
@@ -117,13 +121,16 @@ function preMount(element, hostParent)
         element.Parent = hostParent
     end
 
+    return element
+
 end
 
 function mount(element, hostParent)
 
     if typeof(element) == "table" then
-        preMount(element, hostParent)
-        return element
+        local newIndex = createClone(element)
+        preMount(newIndex, hostParent)
+        return newIndex
     end
 
 end
