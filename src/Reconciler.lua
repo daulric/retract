@@ -1,245 +1,292 @@
-local reconciler = {}
-
 local markers = script.Parent:WaitForChild("markers")
-local system = script.Parent:WaitForChild("system")
+local ElementType = require(markers:WaitForChild("ElementType"))
+local Symbol = require(markers:WaitForChild("Symbol"))
+local Children = require(markers:WaitForChild("Children"))
 
-local Type = require(markers.Type)
-local ElementType = require(markers.ElementType)
-local Children = require(markers.Children)
-local SingleEventManager = require(script.Parent:WaitForChild("SingleEventManager"))
+local InternalData = Symbol.assign("Internal Data")
 
-local createClone = require(system:WaitForChild("createClone"))
+function createReconciler(renderer)
+    local reconciler
 
-function applyProp(element, index, value)
-    local instance = element.instance
+    local mountNode
+    local unmountNode
+    local updateNode
 
-    if index == Children then
-        return
+    local function replaceVirtualNode(virtualNode: VirtualNode, newElement)
+		local hostParent = virtualNode.hostParent
+		local hostKey = virtualNode.hostKey
+		local parent = virtualNode.parent
+        local depth = virtualNode.depth
+
+		if not virtualNode.wasUnmounted then
+			unmountNode(virtualNode)
+		end
+
+		local newNode = mountNode(newElement, hostParent)
+
+		if newNode ~= nil then
+			newNode.depth = depth
+			newNode.parent = parent
+		end
+
+		return newNode
+	end
+
+    local function updateChildren(virtualNode: VirtualNode, hostParent, newChildElements)
+        virtualNode.updateChildrenCount = virtualNode.updateChildrenCount + 1
+
+		local currentUpdateChildrenCount = virtualNode.updateChildrenCount
+
+		local removeKeys = {}
+
+		for childKey, childNode in pairs(virtualNode.children) do
+			local newElement = ElementType.getElementByID(newChildElements, childKey)
+
+			local newNode = updateNode(childNode, newElement)
+
+			if virtualNode.updateChildrenCount ~= currentUpdateChildrenCount then
+				if newNode and newNode ~= virtualNode.children[childKey] then
+					unmountNode(newNode)
+				end
+
+				return
+			end
+
+			if newNode ~= nil then
+				virtualNode.children[childKey] = newNode
+			else
+				removeKeys[childKey] = true
+			end
+		end
+
+		for childKey in pairs(removeKeys) do
+			virtualNode.children[childKey] = nil
+		end
+
+		for childKey, newElement in ElementType.iterateElements(newChildElements) do
+
+			if virtualNode.children[childKey] == nil then
+				local childNode = mountNode(
+					newElement,
+					hostParent,
+                    virtualNode.context,
+                    virtualNode.legacyContext
+				)
+
+				if virtualNode.updateChildrenCount ~= currentUpdateChildrenCount then
+					if childNode then
+						unmountNode(childNode)
+					end
+
+					return
+				end
+
+				if childNode ~= nil then
+					childNode.depth = virtualNode.depth + 1
+					childNode.parent = virtualNode
+					virtualNode.children[childKey] = childNode
+				end
+
+			end
+		end
     end
 
-    if index.Event then
-        local connection = SingleEventManager:connect(instance, index, value)
-        table.insert(element.connections, connection)
-    elseif index.Type == Type.Attribute then
-        instance:SetAttribute(index.name, value)
-    else
-        instance[index] = value
+    local function createVirtualNode(element, hostParent, context, legacyContext)
+        return {
+            currentElement = element,
+            Type = ElementType.Types.Element,
+            hostParent = hostParent,
+            depth = 0,
+            wasUnmounted = false,
+            parent = nil,
+            object = nil,
+            updateChildrenCount = 0,
+            children = {},
+            context = context or {},
+            legacyContext = legacyContext,
+            parentLegacyContext = legacyContext,
+            originalContext = nil
+        }
     end
 
-end
+    type VirtualNode = typeof(createVirtualNode())
 
-function applyProps(element)
-    for index, value in pairs(element.props) do
-        applyProp(element, index, value)
+    local function mountFunctionalNode(virtualNode: VirtualNode)
+        local currentElement = virtualNode.currentElement
+        local stuff = currentElement.class(currentElement.props)
+        updateChildren(virtualNode, virtualNode.hostParent, stuff)
     end
-end
 
-function updateProps(element, newProps)
+    local function mountFragmentNode(virtualNode: VirtualNode)
+        local currentElement = virtualNode.currentElement
+        local children = currentElement.elements
 
-    if element.Type == ElementType.Types.StatefulComponent then
-        element.class:__update(newProps)
-    elseif element.Type == ElementType.Types.Fragment then
-        --[[ this here is a noop because fragments does not have props.
-            this is placed here to override the statement / code below
-        ]]
-    else
+        updateChildren(virtualNode, virtualNode.hostParent, children)
+    end
 
-        unmountwhileUpdating(element)
+    local function mountGatewayNode(virtualNode: VirtualNode)
+        local currentElement = virtualNode.currentElement
+        local path = currentElement.props.path
+        local children = currentElement.props[Children]
 
-        for i, v in pairs(newProps) do
+        assert(renderer.isHostObject(path), `{path} is not a valid object`)
 
-            if i ~= Children then
-                element.props[i] = v
-            end
+        updateChildren(virtualNode, path, children)
+    end
 
+    function mountNode(element, hostParent, context, legacyContext)
+        local virtualNode = createVirtualNode(element, hostParent, context, legacyContext)
+        local currentElement = virtualNode.currentElement
+
+        local Type = element.Type
+
+        if Type == ElementType.Types.Host then
+            renderer.mountHostNode(virtualNode, reconciler)
+        elseif Type == ElementType.Types.Functional then
+            mountFunctionalNode(virtualNode)
+        elseif Type == ElementType.Types.Fragment then
+            mountFragmentNode(virtualNode)
+        elseif Type == ElementType.Types.Gateway then
+            mountGatewayNode(virtualNode)
+        elseif Type == ElementType.Types.StatefulComponent then
+            currentElement.class:__mount(reconciler, virtualNode)
         end
 
-        preMount(element, element.Parent)
-    end
-end
-
-function updateChildren(children, hostParent)
-    for _, element in ElementType.iterateElements(children) do
-        preMount(element, hostParent)
-    end
-end
-
-function preMount(element, hostParent)
-
-    if element.Type == ElementType.Types.Functional then
-        local newElement = element.class(element.props)
-        assert(newElement ~= nil, `there is nothing in this function; {debug.traceback()}`)
-        element.rootNode = newElement
-        preMount(newElement, hostParent)
+        return virtualNode
     end
 
-    if element.Type == ElementType.Types.StatefulComponent then
-        local component = element.class
-        if component.mounted == false then
-            component:__mount(element, hostParent)
+    local function unmoutVirtualNodeChildren(virtualNode: VirtualNode)
+        for i, v in pairs(virtualNode.children) do
+            unmountNode(v)
+        end
+    end
+
+    function unmountNode(virtualNode: VirtualNode)
+        local element = virtualNode.currentElement
+        local Type = ElementType.of(element)
+
+        if Type == ElementType.Types.Host then
+            renderer.unmountHostNode(virtualNode, reconciler)
+        elseif Type == ElementType.Types.Functional then
+            unmoutVirtualNodeChildren(virtualNode)
+        elseif Type == ElementType.Types.Fragment then
+            unmoutVirtualNodeChildren(virtualNode)
+        elseif Type == ElementType.Types.Gateway then
+            unmoutVirtualNodeChildren(virtualNode)
+        elseif Type == ElementType.Types.StatefulComponent then
+            virtualNode.instance:__unmount()
         else
-            component:__render(hostParent)
+            error(`Unknown Element Virtual Tree ID: {element}`)
         end
+
     end
 
-    if element.Type == ElementType.Types.Fragment then
+    local function updateFunctionalNode(virtualNode: VirtualNode, newElement)
+        local children = newElement.class(newElement.props)
+        updateChildren(virtualNode, virtualNode.hostParent, children)
+        return virtualNode
+    end
 
-        local components
+    local function updateGatewayNode(virtualNode: VirtualNode, newElement)
+        local oldElement = virtualNode.currentElement
+        local oldPath = oldElement.props.path
 
-        if element.class then
-            components = element.class.elements
+        local hostPath = newElement.props.path
+
+        if oldPath ~= hostPath then
+            return replaceVirtualNode(virtualNode, newElement)
+        end
+
+        local children = newElement.props[Children]
+
+        updateChildren(virtualNode, hostPath, children)
+
+        return virtualNode
+    end
+
+    local function updateFragmentNode(virtualNode: VirtualNode, newElement)
+        updateChildren(virtualNode, virtualNode.hostParent, newElement.elements)
+        return virtualNode
+    end
+
+    function updateNode(virtualNode: VirtualNode, newElement, newState)
+        if virtualNode.currentElement == newElement and newState == nil then
+			return virtualNode
+		end
+
+		if typeof(newElement) == "boolean" or newElement == nil then
+			unmountNode(virtualNode)
+			return nil
+		end
+
+		if virtualNode.currentElement.component ~= newElement.component then
+			return replaceVirtualNode(virtualNode, newElement)
+		end
+
+        local Type = ElementType.of(newElement)
+        local shouldContinueUpdate = true
+
+        if Type == ElementType.Types.Host then
+            virtualNode = renderer.updateHostNode(virtualNode, reconciler, newElement)
+        elseif Type == ElementType.Types.Functional then
+            virtualNode = updateFunctionalNode(virtualNode, newElement)
+        elseif Type == ElementType.Types.Fragment then
+            virtualNode = updateFragmentNode(virtualNode, newElement)
+        elseif Type == ElementType.Types.Gateway then
+            virtualNode = updateGatewayNode(virtualNode, newElement)
+        elseif Type == ElementType.Types.StatefulComponent then
+            shouldContinueUpdate = virtualNode.instance:__update(newElement, newState)
         else
-            components = element.elements
+            error("Unknown Element Type!")
         end
 
-        updateChildren(components, hostParent)
+        if not shouldContinueUpdate then
+			return virtualNode
+		end
+
+        virtualNode.currentElement = newElement
+        return virtualNode
     end
 
-    if element.Type == ElementType.Types.Gateway then
-        local hostParent = element.props.path
-        local children = element.props[Children]
+    local function mountVirtualTree(element, hostParent)
+        local tree = {
+            Type = ElementType.Types.VirtualTree,
+            [InternalData] = {
+                rootNode = nil,
+                mounted = true,
+            }
+        }
 
-        assert(hostParent ~= nil, "There is no host parent")
-
-        updateChildren(children, hostParent)
+        tree[InternalData].rootNode = mountNode(element, hostParent)
+        return tree
     end
 
-    if element.Type == ElementType.Types.Host then
-        local completeInstance = Instance.new(element.class)
+    local function updateVirtualTree(tree, newElement)
+        local InternalData = tree[InternalData]
+        InternalData.rootNode = updateNode(InternalData.rootNode, newElement)
+        return tree
+    end
 
-        element.instance = completeInstance
-        element.connections = {}
-
-        applyProps(element)
-    
-        updateChildren(element.children, completeInstance)
-    
-        if typeof(hostParent) == "Instance" then
-            completeInstance.Parent = hostParent
+    local function unmountVirtualTree(virtualTree)
+        if virtualTree[InternalData].rootNode then
+            local rootNode = virtualTree[InternalData].rootNode
+            unmountNode(rootNode)
         end
-    
-        element.Parent = hostParent
     end
 
-    return element
+    reconciler = {
+        updateChildren = updateChildren,
+        replaceVirtualNode = replaceVirtualNode,
+        mountNode = mountNode,
+        unmountNode = unmountNode,
+        updateNode = updateNode,
+        mountVirtualTree = mountVirtualTree,
+        updateVirtualTree = updateVirtualTree,
+        unmountVirtualTree = unmountVirtualTree,
+    }
+
+    return reconciler
 
 end
 
-function mount(element, hostParent)
-
-    if typeof(element) == "table" then
-        local newIndex = createClone(element)
-        preMount(newIndex, hostParent)
-        return newIndex
-    end
-
-end
-
-function deleteConnections(element)
-    if element.connections then
-        for i, v in pairs(element.connections) do
-            if v.Connected then
-                v:Disconnect()
-            end
-        end
-    end
-end
-
-function unmount(element)
-
-    local path = element.Parent
-
-    if element.Type == ElementType.Types.StatefulComponent then
-        element.class:__unmount()
-    elseif element.Type == ElementType.Types.Functional then
-        unmount(element.rootNode)
-    elseif element.Type == ElementType.Types.Gateway then
-        for _, nodes in pairs(element.children) do
-            unmount(nodes)
-        end
-    elseif element.Type == ElementType.Types.Fragment then
-        local components
-
-        if element.class then
-            components = element.class.elements
-        elseif element.elements then
-            components = element.elements
-        end
-
-        for i, v in pairs(components) do
-            unmount(v)
-        end
-
-    elseif element.Type == ElementType.Types.Host then
-        if element.instance and typeof(element.instance) == "Instance" then
-
-            deleteConnections(element)
-            if element.instance.Parent ~= nil then
-                element.instance:Destroy()
-                element.instance = nil
-            end
-
-        end
-    
-        for _, nodes in pairs(element.children) do
-            unmount(nodes)
-        end
-
-    end
-
-    return path
-end
-
-function unmountwhileUpdating(element)
-	if element.Type == ElementType.Types.StatefulComponent then
-        element.class:__unmountwithChanging()
-    elseif element.Type == ElementType.Types.Functional then
-        unmountwhileUpdating(element.rootNode)
-    elseif element.Type == ElementType.Types.Gateway then
-        for _, nodes in ElementType.iterateElements(element.children) do
-            unmountwhileUpdating(nodes)
-        end
-    elseif element.Type == ElementType.Types.Fragment then
-        for _, nodes in ElementType.iterateElements(element.elements) do
-            unmountwhileUpdating(nodes)
-        end
-    elseif element.Type == ElementType.Types.Host then
-        if element.instance and typeof(element.instance) == "Instance" then
-
-            for _, nodes in ElementType.iterateElements(element.children) do
-                unmountwhileUpdating(nodes)
-            end
-
-            deleteConnections(element)
-            element.instance:Destroy()
-
-        end
-    end
-end
-
-function preUpdate(currentTree, props)
-    updateProps(currentTree, props)
-
-    if currentTree.children then
-        for i, v in ElementType.iterateElements(currentTree.children) do
-            preUpdate(v, {})
-        end
-    end
-
-end
-
-function update(currentTree, newTree)
-    preUpdate(currentTree, newTree.props)
-    return currentTree
-end
-
-reconciler.mount = mount
-reconciler.update = update
-reconciler.unmount = unmount
-reconciler.unmountSecond = unmountwhileUpdating
-reconciler.premount = preMount
-reconciler.updateProps = updateProps
-reconciler.preupdate = preUpdate
-reconciler.updateChildren = updateChildren
-
-return reconciler
+return createReconciler

@@ -22,7 +22,7 @@ return function ()
 
 	it("should unmount element", function()
 		task.wait(1)
-        expect(ReTract.unmount(handle)).to  .be.ok()
+        expect(ReTract.unmount(handle)).to.never.be.ok()
     end)
 
     it("custom retract properties", function()

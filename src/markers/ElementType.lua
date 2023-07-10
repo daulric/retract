@@ -12,10 +12,13 @@ local ElementKindType = {
     Host = Symbol.assign("Retract.Element.Host"),
     Functional = Symbol.assign("Retract.Element.Function"),
     StatefulComponent = Symbol.assign("Retract.Element.StatefulComponent"),
+    StatefulComponentInstance = Symbol.assign("Retract.Component.Instance"),
 
     --// Other Stuff
     Fragment = Symbol.assign("Retract.Fragment"),
     Gateway = Symbol.assign("Retract.Gateway"),
+    Element = Symbol.assign("Retract.Element"),
+    VirtualTree = Symbol.assign("Retract.VirtualTree")
 }
 
 ElementTypeInternal.Types = ElementKindType
@@ -53,11 +56,18 @@ function ElementTypeInternal.typeof(element)
 
 end
 
+function ElementTypeInternal.of(element)
+    if element.Type then
+        return element.Type
+    end
+end
+
 function ElementTypeInternal.iterateElements(index)
 
     local regType = typeof(index)
+    local richType = ElementTypeInternal.of(index)
 
-    if index.props then
+    if index.Type then
 
         local called = false
 
@@ -81,6 +91,29 @@ function ElementTypeInternal.iterateElements(index)
     end
 
     error("This is not a valid elements! "..tostring(index))
+end
+
+function ElementTypeInternal.getElementByID(elements, key)
+
+    if elements == nil or typeof(elements) == "boolean" then
+		return nil
+	end
+
+	if elements.Type == ElementTypeInternal.Types.Element then
+		if key == ElementTypeInternal.Key then
+            print("Got a Table using Private Key!")
+			return elements
+		end
+
+		return nil
+	end
+
+	if typeof(elements) == "table" then
+		return elements[key]
+	end
+
+	error("Invalid elements")
+
 end
 
 getmetatable(ElementType).__index = ElementTypeInternal

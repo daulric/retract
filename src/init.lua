@@ -5,20 +5,23 @@ local markers = script:WaitForChild("markers")
 
 local data = require(markers:WaitForChild("data"))
 
-local Reconciler = require(script:WaitForChild("Reconciler"))
 local createElement = require(nodes:WaitForChild("createElement"))
 local createFragment = require(nodes:WaitForChild("createFragment"))
 local ComponentAspect = require(script:WaitForChild("Component"))
 
 local Signal = require(system:WaitForChild("Signal"))
 
+-- Reconciler v2
+local renderer = require(script:WaitForChild("Renderer"))
+local Reconciler = require(script:WaitForChild("Reconciler"))(renderer)
+
 -- \\ compile // --
 local freeze = require(script:WaitForChild("freeze"))
 
 local Retract = {
-    mount = Reconciler.mount,
-    unmount = Reconciler.unmount,
-    update = Reconciler.update,
+    mount = Reconciler.mountVirtualTree,
+    unmount = Reconciler.unmountVirtualTree,
+    update = Reconciler.updateVirtualTree,
 
     createElement = createElement,
     createFragment = createFragment,
